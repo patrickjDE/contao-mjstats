@@ -1,0 +1,24 @@
+{
+  "name": "patrickj/contao-mjs",
+  "type": "contao-bundle",
+  "description": "track mahjong stats",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Patrick Josupeit",
+      "homepage": "https://github.com/patrickjDE"
+    }
+  ],
+  "require": {
+    "php": "^8.3",
+    "contao/core-bundle": "^5.3.9"
+  },
+  "autoload": {
+    "psr-4" : {
+      "Patrickj\\Contao\\MjsBundle\\" : "src/"
+    }
+  },
+  "extra":{
+    "contao-manager-plugin": "Patrickj\\Contao\\MjsBundle\\ContaoManager\\Plugin"
+  }
+}

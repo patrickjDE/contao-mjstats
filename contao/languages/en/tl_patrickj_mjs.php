@@ -1,0 +1,36 @@
+<?php
+
+$GLOBALS['TL_LANG']['tl_patrickj_mjs'] = [
+    'meta_legend' => 'Meta',
+    'platform' => ['Platform'],
+    'date' => ['Date'],
+    'gameType' => ['Match Type'],
+    'rank' => ['Skill Level'],
+    'exp' => ['Experience'],
+
+    'playStyle_legend' => 'Play Style',
+    'styleAtk' => ['ATK', 'Based on average points won in the last 100 games.'],
+    'styleDef' => ['DEF', 'Based on deal-in rate over the last 100 games.'],
+    'styleSpd' => ['SPD', 'Based on win rate over the last 100 games.'],
+    'styleLuk' => ['LUK', 'Based on number of Dora-Yaku (Dora, Ura Dora, Red Five & Ippatsu) in the last 20 wins.'],
+
+    'trend_legend' => 'Trends',
+    'recentResult' => ['Recent Match Rank'],
+
+    'data_legend' => 'Detailed Info',
+    'rateFirst' => ['1st', 'Percentage of matches ended in 1st place.'],
+    'rateSecond' => ['2nd', 'Percentage of matches ended in 2nd place.'],
+    'rateThird' => ['3rd', 'Percentage of matches ended in 3rd place.'],
+    'rateFourth' => ['4th', 'Percentage of matches ended in 4th place.'],
+    'rateNegative' => ['Negative', 'Percentage of matches ended with a negative score.'],
+    'totalPlayed' => ['Total Played', 'Total number of matches played.'],
+    'avgScore' => ['Avg Score', 'Average score of winning hands.'],
+    'avgRank' => ['Avg Rank', 'Average rank at the end of a match.'],
+    'maxHonba' => ['Max Repeats', 'Maximum number of wins as East.'],
+    'avgTurns' => ['Avg Turns', 'Average number of turns per match.'],
+    'rateWin' => ['Win Rate', 'Percentage of games won.'],
+    'rateTsumo' => ['Tsumo Rate', 'Percentage of wins achieved with Tsumo.'],
+    'rateDealIn' => ['Deal-in Rate', 'Percentage of games lost with Ron.'],
+    'rateCall' => ['Tsumo Rate', 'Percentage of games in which you called Chii/Pon/Kan.'],
+    'rateRiichi' => ['Riichi Rate', 'Percentage of wins achieved with Riichi.'],
+];

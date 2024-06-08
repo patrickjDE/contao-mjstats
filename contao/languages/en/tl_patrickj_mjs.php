@@ -31,6 +31,6 @@ $GLOBALS['TL_LANG']['tl_patrickj_mjs'] = [
     'rateWin' => ['Win Rate', 'Percentage of games won.'],
     'rateTsumo' => ['Tsumo Rate', 'Percentage of wins achieved with Tsumo.'],
     'rateDealIn' => ['Deal-in Rate', 'Percentage of games lost with Ron.'],
-    'rateCall' => ['Tsumo Rate', 'Percentage of games in which you called Chii/Pon/Kan.'],
+    'rateCall' => ['Call Rate', 'Percentage of games in which you called Chii/Pon/Kan.'],
     'rateRiichi' => ['Riichi Rate', 'Percentage of wins achieved with Riichi.'],
 ];

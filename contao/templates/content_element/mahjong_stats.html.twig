@@ -1,0 +1,190 @@
+{% extends '@Contao/content_element/_base.html.twig' %}
+
+{% block content %}
+    <canvas id="chartjs"></canvas>
+    <canvas id="chartjs-rank"></canvas>
+    <canvas id="chartjs-style"></canvas>
+{% endblock %}
+
+{% block script %}
+    <script src="/bundles/patrickjmjs/js/chart.umd.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        const data = {{ statData|json_encode|raw }};
+        const detailData = data.filter(row => row.rateWin !== '');
+        console.log(data);
+        console.log(data.map(row => row.rateWin || (row.rateWin === '' && null || row.rateWin)));
+
+        const myChart = new Chart(document.getElementById('chartjs'), {
+            type: 'line',
+            data: {
+                labels: data.map(row => row.totalPlayed),
+                datasets: [
+                    {
+                        label: 'Win Rate',
+                        data: data.map(row => row.rateWin),
+                        yAxisID: 'rate',
+                        borderColor: '#2a0',
+                    },
+                    {
+                        label: 'Deal-in Rate',
+                        data: data.map(row => row.rateDealIn),
+                        yAxisID: 'rate',
+                        borderColor: '#a20',
+                    },
+                    // {
+                    //     label: '1st Rate',
+                    //     data: data.map(row => row.rateFirst),
+                    //     yAxisID: 'rate',
+                    //     borderColor: '#3cf',
+                    //     borderWidth: 1,
+                    //     pointRadius: 0,
+                    // },
+                    // {
+                    //     label: '2nd Rate',
+                    //     data: data.map(row => row.rateSecond),
+                    //     yAxisID: 'rate',
+                    //     borderColor: '#69f',
+                    //     borderWidth: 1,
+                    //     pointRadius: 0,
+                    // },
+                    // {
+                    //     label: '3rd Rate',
+                    //     data: data.map(row => row.rateThird),
+                    //     yAxisID: 'rate',
+                    //     borderColor: '#96f',
+                    //     borderWidth: 1,
+                    //     pointRadius: 0,
+                    // },
+                    {
+                        label: '4th Rate',
+                        data: data.map(row => row.rateFourth),
+                        yAxisID: 'rate',
+                        borderColor: '#c3f',
+                    },
+                ],
+            },
+            options: {
+                spanGaps: true,
+                scales: {
+                    rate: {
+                        axis: 'y',
+                        type: 'linear',
+                        min: 10,
+                        max: 30,
+                        ticks: {
+                            callback: val => {
+                                if (val == 14) return 'Deal-in target';
+                                if (val == 24) return 'Win target';
+                                if (val == 25) return '4th target';
+                                if (val % 1 === 0) return val;
+                                return null;
+                            }
+                        },
+                        grid: {
+                            color: function(context) {
+                                console.log(context);
+                                if (context.tick.value == 14) return '#c30';
+                                if (context.tick.value == 24) return '#3c0';
+                                if (context.tick.value == 25) return '#c3f';
+
+                                return '#0001';
+                            },
+                        },
+                        afterFit: function(axis) {axis.width = 100;},
+                        afterBuildTicks: axis => {
+                            axis.ticks.push({value: 25})
+                        },
+                    },
+                },
+            },
+        });
+        const rankChart = new Chart(document.getElementById('chartjs-rank'), {
+            type: 'line',
+            data: {
+                labels: data.map(row => row.totalPlayed),
+                datasets: [
+                    {
+                        // type: 'scatter',
+                        label: 'Recent Match Rank',
+                        data: data.map(row => row.recentResult.slice(0, 1)),
+                        yAxisID: 'rank',
+                        borderColor: '#666',
+                        backgroundColor: '#666',
+                        borderWidth: 1,
+                    },
+                    {
+                        label: 'Average Rank',
+                        data: data.map(row => row.avgRank),
+                        yAxisID: 'rank',
+                        borderColor: '#02d',
+                        borderWidth: 1,
+                        pointRadius: 0,
+                    },
+                ],
+            },
+            options: {
+                aspectRatio: 4,
+                spanGaps: true,
+                scales: {
+                    rank: {
+                        axis: 'y',
+                        type: 'linear',
+                        // type: 'logarithmic',
+                        reverse: true,
+                        grid: {
+                            color: context => {
+                                if (context.tick.value === 2.5) return '#0003';
+                                return '#0001';
+                            }
+                        },
+                        afterFit: function(axis) {axis.width = 100;},
+                    },
+                },
+            },
+        });
+        const styleChart = new Chart(document.getElementById('chartjs-style'), {
+            type: 'line',
+            data: {
+                labels: data.map(row => row.totalPlayed),
+                datasets: [
+                    {
+                        label: 'ATK',
+                        data: data.map(row => row.styleAtk),
+                        borderWidth: 1,
+                        backgroundColor: '#e63a89',
+                    },
+                    {
+                        label: 'DEF',
+                        data: data.map(row => row.styleDef),
+                        borderWidth: 1,
+                        backgroundColor: '#71e39c',
+                    },
+                    {
+                        label: 'SPD',
+                        data: data.map(row => row.styleSpd),
+                        borderWidth: 1,
+                        backgroundColor: '#65ccd3',
+                    },
+                    {
+                        label: 'LUK',
+                        data: data.map(row => row.styleLuk),
+                        borderWidth: 1,
+                        backgroundColor: '#ae8152',
+                    },
+                ],
+            },
+            options: {
+                aspectRatio: 4,
+                fill: true,
+                spanGaps: true,
+                pointRadius: 0,
+                scales: {
+                    y: {
+                        stacked: true,
+                        afterFit: function(axis) {axis.width = 100;},
+                    },
+                },
+            },
+        });
+    </script>
+{% endblock %}

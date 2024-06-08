@@ -21,7 +21,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
             'fields'      => ['platform', 'gameType', 'totalPlayed', 'date'],
         ],
         'label'             => [
-            'fields'      => ['platform', 'gameType', 'totalPlayed', 'rateWin', 'rateDealIn', 'rateFourth'],
+            'fields'      => ['platform', 'gameType', 'totalPlayed', 'recentResult', 'recentScore', 'rateWin', 'rateDealIn', 'rateFourth', 'rateCall'],
             'showColumns' => true,
         ],
         'global_operations' => [
@@ -38,7 +38,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
     'palettes' => [
         '__selector__' => ['platform'],
         'default'      => '{meta_legend},platform',
-        'mahjong_soul' => '{meta_legend},platform,date,gameType,rank,exp;{playStyle_legend},styleAtk,styleDef,styleSpd,styleLuk;{trend_legend},recentResult;{data_legend},rateFirst,rateSecond,rateThird,rateFourth,rateNegative,totalPlayed,avgScore,avgRank,maxHonba,avgTurns,rateWin,rateTsumo,rateDealIn,rateCall,rateRiichi',
+        'mahjong_soul' => '{meta_legend},platform,date,gameType,rank,exp;{playStyle_legend},styleAtk,styleDef,styleSpd,styleLuk;{trend_legend},room,recentResult,recentScore,recentScoreFirst,recentScoreSecond,recentScoreThird,recentScoreFourth;{data_legend},rateFirst,rateSecond,rateThird,rateFourth,rateNegative,totalPlayed,avgScore,avgRank,maxHonba,avgTurns,rateWin,rateTsumo,rateDealIn,rateCall,rateRiichi',
     ],
 
     'fields' => [
@@ -81,6 +81,8 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
             'options'   => [
                 'east'  => 'East',
                 'south' => 'South',
+                'east3'  => '3 Player East',
+                'south3' => '3 Player South',
             ],
             'eval'      => [
                 'mandatory' => true,
@@ -106,6 +108,21 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'tl_class' => 'w25',
             ],
             'sql'       => "varchar(12)",
+        ],
+        'room'         => [
+            'inputType' => 'select',
+            'options'   => [
+                'bronze' => 'Bronze',
+                'silver' => 'Silver',
+                'gold' => 'Gold',
+                'jade' => 'Jade',
+                'throne' => 'Throne',
+            ],
+            'eval'      => [
+                'includeBlankOption' => true,
+                'tl_class' => 'w25',
+            ],
+            'sql'       => "varchar(8)",
         ],
         'exp'          => [
             'inputType' => 'text',
@@ -170,6 +187,46 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'tl_class' => 'w25',
             ],
             'sql'       => "varchar(2)",
+        ],
+        'recentScore' => [
+            'inputType' => 'text',
+            'eval'      => [
+                'tl_class' => 'w25',
+                'rgxp'     => 'digit',
+            ],
+            'sql'       => "varchar(6)",
+        ],
+        'recentScoreFirst' => [
+            'inputType' => 'text',
+            'eval'      => [
+                'tl_class' => 'clr w25',
+                'rgxp'     => 'digit',
+            ],
+            'sql'       => "varchar(6)",
+        ],
+        'recentScoreSecond' => [
+            'inputType' => 'text',
+            'eval'      => [
+                'tl_class' => 'w25',
+                'rgxp'     => 'digit',
+            ],
+            'sql'       => "varchar(6)",
+        ],
+        'recentScoreThird' => [
+            'inputType' => 'text',
+            'eval'      => [
+                'tl_class' => 'w25',
+                'rgxp'     => 'digit',
+            ],
+            'sql'       => "varchar(6)",
+        ],
+        'recentScoreFourth' => [
+            'inputType' => 'text',
+            'eval'      => [
+                'tl_class' => 'w25',
+                'rgxp'     => 'digit',
+            ],
+            'sql'       => "varchar(6)",
         ],
         'rateFirst'    => [
             'inputType' => 'text',

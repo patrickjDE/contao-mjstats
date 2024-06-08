@@ -66,7 +66,7 @@
                     rate: {
                         axis: 'y',
                         type: 'linear',
-                        min: 10,
+                        min: 13,
                         max: 30,
                         ticks: {
                             callback: val => {
@@ -79,7 +79,6 @@
                         },
                         grid: {
                             color: function(context) {
-                                console.log(context);
                                 if (context.tick.value == 14) return '#c30';
                                 if (context.tick.value == 24) return '#3c0';
                                 if (context.tick.value == 25) return '#c3f';

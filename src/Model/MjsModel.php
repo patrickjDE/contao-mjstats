@@ -10,9 +10,6 @@ class MjsModel extends Model implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
-        $arr = $this->row();
-        return array_map(function($value) {
-            return $value === '' ? null : $value;
-        }, $arr);
+        return $this->row();
     }
 }

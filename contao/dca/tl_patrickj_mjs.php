@@ -105,7 +105,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'includeBlankOption' => true,
                 'tl_class' => 'w25',
             ],
-            'sql'       => "varchar(12) NOT NULL default ''",
+            'sql'       => "varchar(12)",
         ],
         'exp'          => [
             'inputType' => 'text',
@@ -114,7 +114,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'rgxp' >= 'natural',
                 'minval'   => 0,
             ],
-            'sql'       => "varchar(5) NOT NULL default ''",
+            'sql'       => "varchar(5)",
         ],
         'styleAtk'     => [
             'inputType' => 'text',
@@ -124,7 +124,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(3) NOT NULL default ''",
+            'sql'       => "varchar(3)",
         ],
         'styleDef'     => [
             'inputType' => 'text',
@@ -134,7 +134,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(3) NOT NULL default ''",
+            'sql'       => "varchar(3)",
         ],
         'styleSpd'     => [
             'inputType' => 'text',
@@ -144,7 +144,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(3) NOT NULL default ''",
+            'sql'       => "varchar(3)",
         ],
         'styleLuk'     => [
             'inputType' => 'text',
@@ -154,7 +154,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(3) NOT NULL default ''",
+            'sql'       => "varchar(3)",
         ],
         'recentResult' => [
             'inputType' => 'select',
@@ -169,7 +169,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'includeBlankOption' => true,
                 'tl_class' => 'w25',
             ],
-            'sql'       => "varchar(2) NOT NULL default ''",
+            'sql'       => "varchar(2)",
         ],
         'rateFirst'    => [
             'inputType' => 'text',
@@ -179,7 +179,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(6) NOT NULL default ''",
+            'sql'       => "varchar(6)",
         ],
         'rateSecond'   => [
             'inputType' => 'text',
@@ -189,7 +189,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(6) NOT NULL default ''",
+            'sql'       => "varchar(6)",
         ],
         'rateThird'    => [
             'inputType' => 'text',
@@ -199,7 +199,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(6) NOT NULL default ''",
+            'sql'       => "varchar(6)",
         ],
         'rateFourth'   => [
             'inputType' => 'text',
@@ -209,7 +209,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(6) NOT NULL default ''",
+            'sql'       => "varchar(6)",
         ],
         'rateNegative' => [
             'inputType' => 'text',
@@ -219,7 +219,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(6) NOT NULL default ''",
+            'sql'       => "varchar(6)",
         ],
         'totalPlayed'  => [
             'inputType' => 'text',
@@ -228,7 +228,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'rgxp'     => 'natural',
                 'minval'   => 0,
             ],
-            'sql'       => "varchar(6) NOT NULL default ''",
+            'sql'       => "varchar(6)",
         ],
         'avgScore'     => [
             'inputType' => 'text',
@@ -237,7 +237,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'rgxp'     => 'natural',
                 'minval'   => 0,
             ],
-            'sql'       => "varchar(6) NOT NULL default ''",
+            'sql'       => "varchar(6)",
         ],
         'avgRank'      => [
             'inputType' => 'text',
@@ -246,7 +246,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'rgxp'     => 'digit',
                 'minval'   => 0,
             ],
-            'sql'       => "varchar(4) NOT NULL default ''",
+            'sql'       => "varchar(4)",
         ],
         'maxHonba'     => [
             'inputType' => 'text',
@@ -255,7 +255,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'rgxp'     => 'natural',
                 'minval'   => 0,
             ],
-            'sql'       => "varchar(2) NOT NULL default ''",
+            'sql'       => "varchar(2)",
         ],
         'avgTurns'     => [
             'inputType' => 'text',
@@ -264,7 +264,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'rgxp'     => 'digit',
                 'minval'   => 0,
             ],
-            'sql'       => "varchar(5) NOT NULL default ''",
+            'sql'       => "varchar(5)",
         ],
         'rateWin'      => [
             'inputType' => 'text',
@@ -274,7 +274,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(6) NOT NULL default ''",
+            'sql'       => "varchar(6)",
         ],
         'rateTsumo'    => [
             'inputType' => 'text',
@@ -284,7 +284,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(6) NOT NULL default ''",
+            'sql'       => "varchar(6)",
         ],
         'rateDealIn'   => [
             'inputType' => 'text',
@@ -294,7 +294,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(6) NOT NULL default ''",
+            'sql'       => "varchar(6)",
         ],
         'rateCall'     => [
             'inputType' => 'text',
@@ -304,7 +304,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(6) NOT NULL default ''",
+            'sql'       => "varchar(6)",
         ],
         'rateRiichi'   => [
             'inputType' => 'text',
@@ -314,7 +314,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(6) NOT NULL default ''",
+            'sql'       => "varchar(6)",
         ],
     ],
 ];

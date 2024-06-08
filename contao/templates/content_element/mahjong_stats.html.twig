@@ -10,9 +10,6 @@
     <script src="/bundles/patrickjmjs/js/chart.umd.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         const data = {{ statData|json_encode|raw }};
-        const detailData = data.filter(row => row.rateWin !== '');
-        console.log(data);
-        console.log(data.map(row => row.rateWin || (row.rateWin === '' && null || row.rateWin)));
 
         const myChart = new Chart(document.getElementById('chartjs'), {
             type: 'line',

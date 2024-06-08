@@ -131,7 +131,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'rgxp' >= 'natural',
                 'minval'   => 0,
             ],
-            'sql'       => "varchar(5)",
+            'sql'       => "int(10)",
         ],
         'styleAtk'     => [
             'inputType' => 'text',
@@ -141,7 +141,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(3)",
+            'sql'       => "int(10)",
         ],
         'styleDef'     => [
             'inputType' => 'text',
@@ -151,7 +151,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(3)",
+            'sql'       => "int(10)",
         ],
         'styleSpd'     => [
             'inputType' => 'text',
@@ -161,7 +161,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(3)",
+            'sql'       => "int(10)",
         ],
         'styleLuk'     => [
             'inputType' => 'text',
@@ -171,7 +171,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
-            'sql'       => "varchar(3)",
+            'sql'       => "int(10)",
         ],
         'recentResult' => [
             'inputType' => 'select',
@@ -285,7 +285,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'rgxp'     => 'natural',
                 'minval'   => 0,
             ],
-            'sql'       => "varchar(6)",
+            'sql'       => "int(10)",
         ],
         'avgScore'     => [
             'inputType' => 'text',
@@ -294,7 +294,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'rgxp'     => 'natural',
                 'minval'   => 0,
             ],
-            'sql'       => "varchar(6)",
+            'sql'       => "int(10)",
         ],
         'avgRank'      => [
             'inputType' => 'text',
@@ -312,7 +312,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'rgxp'     => 'natural',
                 'minval'   => 0,
             ],
-            'sql'       => "varchar(2)",
+            'sql'       => "int(10)",
         ],
         'avgTurns'     => [
             'inputType' => 'text',

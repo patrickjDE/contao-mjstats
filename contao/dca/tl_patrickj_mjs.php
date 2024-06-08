@@ -21,7 +21,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
             'fields'      => ['platform', 'gameType', 'totalPlayed', 'date'],
         ],
         'label'             => [
-            'fields'      => ['platform', 'gameType', 'totalPlayed', 'recentResult', 'recentScore', 'rateWin', 'rateDealIn', 'rateFourth', 'rateCall'],
+            'fields'      => ['platform', 'gameType', 'date', 'totalPlayed', 'recentResult', 'recentScore', 'rateWin', 'rateDealIn', 'rateFourth', 'rateCall'],
             'showColumns' => true,
         ],
         'global_operations' => [

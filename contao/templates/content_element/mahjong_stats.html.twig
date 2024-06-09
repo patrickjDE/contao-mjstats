@@ -1,15 +1,38 @@
 {% extends '@Contao/content_element/_base.html.twig' %}
+{% trans_default_domain 'contao_default' %}
 
 {% block content %}
+    <h3>Current goals</h3>
     <canvas id="chartjs"></canvas>
+    <h3>Rank</h3>
     <canvas id="chartjs-rank"></canvas>
+    <h3>Points</h3>
+    <canvas id="chartjs-points"></canvas>
+    <h3>Places</h3>
+    <canvas id="chartjs-places"></canvas>
+    <h3>"Style"</h3>
     <canvas id="chartjs-style"></canvas>
+    <h3>Other</h3>
+    <canvas id="chartjs-mega"></canvas>
 {% endblock %}
 
 {% block script %}
     <script src="/bundles/patrickjmjs/js/chart.umd.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        const data = {{ statData|json_encode|raw }};
+        const offset = 10;
+        const averager = (baseArr, propName, length) => {
+            let sum = 0;
+            return baseArr.map((row, i, arr) => {
+                sum += parseInt(row[propName]);
+                console.log(i + ' ' + sum)
+                if (i < length - 1) return null;
+                if (i === length - 1) return sum / length;
+                sum -= parseInt(arr[i - length][propName]);
+                return sum / length;
+            })
+        }
+        const rawData = {{ statData|json_encode|raw }};
+        const data = rawData.slice(offset);
 
         const myChart = new Chart(document.getElementById('chartjs'), {
             type: 'line',
@@ -17,72 +40,37 @@
                 labels: data.map(row => row.totalPlayed),
                 datasets: [
                     {
-                        label: 'Win Rate',
+                        label: '{{ 'tl_patrickj_mjs.rateWin.0'|trans }}',
                         data: data.map(row => row.rateWin),
-                        yAxisID: 'rate',
                         borderColor: '#2a0',
+                        backgroundColor: '#2a0',
                     },
                     {
-                        label: 'Deal-in Rate',
+                        label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }}',
                         data: data.map(row => row.rateDealIn),
-                        yAxisID: 'rate',
-                        borderColor: '#a20',
+                        borderColor: '#d20',
+                        backgroundColor: '#d20',
                     },
-                    // {
-                    //     label: '1st Rate',
-                    //     data: data.map(row => row.rateFirst),
-                    //     yAxisID: 'rate',
-                    //     borderColor: '#3cf',
-                    //     borderWidth: 1,
-                    //     pointRadius: 0,
-                    // },
-                    // {
-                    //     label: '2nd Rate',
-                    //     data: data.map(row => row.rateSecond),
-                    //     yAxisID: 'rate',
-                    //     borderColor: '#69f',
-                    //     borderWidth: 1,
-                    //     pointRadius: 0,
-                    // },
-                    // {
-                    //     label: '3rd Rate',
-                    //     data: data.map(row => row.rateThird),
-                    //     yAxisID: 'rate',
-                    //     borderColor: '#96f',
-                    //     borderWidth: 1,
-                    //     pointRadius: 0,
-                    // },
                     {
-                        label: '4th Rate',
+                        label: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }}',
                         data: data.map(row => row.rateFourth),
-                        yAxisID: 'rate',
                         borderColor: '#c3f',
+                        backgroundColor: '#c3f',
                     },
                 ],
             },
             options: {
                 spanGaps: true,
+                pointRadius: 0,
                 scales: {
-                    rate: {
-                        axis: 'y',
-                        type: 'linear',
-                        min: 13,
-                        max: 30,
-                        ticks: {
-                            callback: val => {
-                                if (val == 14) return 'Deal-in target';
-                                if (val == 24) return 'Win target';
-                                if (val == 25) return '4th target';
-                                if (val % 1 === 0) return val;
-                                return null;
-                            }
-                        },
+                    y: {
+                        suggestedMin: 13,
+                        suggestedMax: 26,
                         grid: {
                             color: function(context) {
-                                if (context.tick.value == 14) return '#c30';
-                                if (context.tick.value == 24) return '#3c0';
-                                if (context.tick.value == 25) return '#c3f';
-
+                                if (context.tick.value === 14) return '#e40';
+                                if (context.tick.value === 24) return '#3c0';
+                                if (context.tick.value === 25) return '#d5f';
                                 return '#0001';
                             },
                         },
@@ -101,37 +89,216 @@
                 datasets: [
                     {
                         // type: 'scatter',
-                        label: 'Recent Match Rank',
+                        label: '{{ 'tl_patrickj_mjs.recentResult.0'|trans }}',
                         data: data.map(row => row.recentResult.slice(0, 1)),
                         yAxisID: 'rank',
+                        showLine: false,
+                        pointRadius: 2,
                         borderColor: '#666',
                         backgroundColor: '#666',
-                        borderWidth: 1,
                     },
                     {
-                        label: 'Average Rank',
+                        label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }}',
                         data: data.map(row => row.avgRank),
-                        yAxisID: 'rank',
-                        borderColor: '#02d',
                         borderWidth: 1,
                         pointRadius: 0,
+                        borderColor: '#03f',
+                        backgroundColor: 'transparent',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 50)',
+                        data: averager(rawData, 'recentResult', 50).slice(offset),
+                        borderWidth: 1,
+                        pointRadius: 0,
+                        borderColor: '#03f',
+                        borderDash: [3, 1],
+                        backgroundColor: 'transparent',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 20)',
+                        data: averager(rawData, 'recentResult', 20).slice(offset),
+                        borderWidth: 1,
+                        pointRadius: 0,
+                        borderColor: '#79f',
+                        borderDash: [4, 2],
+                        backgroundColor: 'transparent',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 10)',
+                        data: averager(rawData, 'recentResult', 10).slice(offset),
+                        borderWidth: 1,
+                        pointRadius: 0,
+                        borderColor: '#acf',
+                        borderDash: [4, 2],
+                        backgroundColor: 'transparent',
+                    },
+                ],
+            },
+            options: {
+                aspectRatio: 3,
+                spanGaps: true,
+                scales: {
+                    y: {
+                        reverse: true,
+                        grid: {
+                            color: context => {
+                                if (context.tick.value === 2.5) return '#000';
+                                return '#0001';
+                            }
+                        },
+                        afterDataLimits: (context) => {
+                            const offset = Math.max(Math.abs(2.5 - context.min), Math.abs(2.5 - context.max));
+                            context.min = 2.5 - offset;
+                            context.max = 2.5 + offset;
+                        },
+                        afterBuildTicks: axis => {
+                            if (!axis.ticks.find(el => el.value === 2.5)) axis.ticks.push({value: 2.5})
+                        },
+                        afterFit: function(axis) {axis.width = 50;},
+                    },
+                    rank: {
+                        axis: 'y',
+                        grid: {
+                            drawOnChartArea: false,
+                        },
+                        reverse: true,
+                        ticks: {
+                            count: 4,
+                        },
+                        afterFit: function(axis) {axis.width = 50;},
+                    },
+                },
+            },
+        });
+        const pointsChart = new Chart(document.getElementById('chartjs-points'), {
+            type: 'bar',
+            data: {
+                labels: data.map(row => row.totalPlayed),
+                datasets: [
+                    {
+                        label: '{{ 'tl_patrickj_mjs.recentScoreFourth.0'|trans }}',
+                        data: data.map(row => row.recentScoreFourth),
+                        borderWidth: 1,
+                        borderColor: '#d20',
+                        backgroundColor: '#d20',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.recentScoreThird.0'|trans }}',
+                        data: data.map(row => row.recentScoreThird),
+                        borderWidth: 1,
+                        borderColor: '#f80',
+                        backgroundColor: '#f80',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.recentScoreSecond.0'|trans }}',
+                        data: data.map(row => row.recentScoreSecond),
+                        borderWidth: 1,
+                        borderColor: '#dd0',
+                        backgroundColor: '#dd0',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.recentScoreFirst.0'|trans }}',
+                        data: data.map(row => row.recentScoreFirst),
+                        borderWidth: 1,
+                        borderColor: '#2a0',
+                        backgroundColor: '#2a0',
+                    },
+                    {
+                        type: 'line',
+                        label: '{{ 'tl_patrickj_mjs.recentScore.0'|trans }}',
+                        data: data.map(row => row.recentScore),
+                        borderWidth: 1,
+                        pointRadius: 2,
+                        borderColor: '#666',
+                        backgroundColor: '#fff',
+                        order: -1,
+                        fill: false,
+                        showLine: false,
+                    },
+                ],
+            },
+            options: {
+                aspectRatio: 1.5,
+                fill: true,
+                pointBorderColor: '#666',
+                spanGaps: true,
+                scales: {
+                    x: {
+                        stacked: true,
+                    },
+                    y: {
+                        ticks: {
+                            stepSize: 10000,
+                        },
+                        grid: {
+                            color: context => {
+                                console.log(context)
+                                if (context.tick.value === 25000) return '#000';
+                                return '#0001';
+                            }
+                        },
+                        afterBuildTicks: axis => {
+                            if (!axis.ticks.find(el => el.value === 25000)) axis.ticks.push({value: 25000})
+                        },
+                        afterFit: function(axis) {axis.width = 100;},
+                    },
+                },
+            },
+        });
+        const placesChart = new Chart(document.getElementById('chartjs-places'), {
+            type: 'line',
+            data: {
+                labels: data.map(row => row.totalPlayed),
+                datasets: [
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }}',
+                        data: data.map(row => row.rateFourth),
+                        borderWidth: 1,
+                        backgroundColor: '#d20',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateThird.0'|trans }}',
+                        data: data.map(row => row.rateThird),
+                        borderWidth: 1,
+                        backgroundColor: '#f80',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateSecond.0'|trans }}',
+                        data: data.map(row => row.rateSecond),
+                        borderWidth: 1,
+                        backgroundColor: '#dd0',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateFirst.0'|trans }}',
+                        data: data.map(row => row.rateFirst),
+                        borderWidth: 1,
+                        backgroundColor: '#2a0',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateNegative.0'|trans }}',
+                        data: data.map(row => row.rateNegative),
+                        borderWidth: 1,
+                        backgroundColor: '#a00',
+                        stack: 'unstacked',
+                        order: -5,
                     },
                 ],
             },
             options: {
                 aspectRatio: 4,
+                fill: true,
                 spanGaps: true,
+                pointRadius: 0,
                 scales: {
-                    rank: {
-                        axis: 'y',
-                        type: 'linear',
-                        // type: 'logarithmic',
-                        reverse: true,
+                    y: {
+                        stacked: true,
+                        min: 0,
+                        max: 100,
+                        ticks: {
+                            count: 5,
+                        },
                         grid: {
-                            color: context => {
-                                if (context.tick.value === 2.5) return '#0003';
-                                return '#0001';
-                            }
+                            z: 1,
                         },
                         afterFit: function(axis) {axis.width = 100;},
                     },
@@ -144,25 +311,25 @@
                 labels: data.map(row => row.totalPlayed),
                 datasets: [
                     {
-                        label: 'ATK',
+                        label: '{{ 'tl_patrickj_mjs.styleAtk.0'|trans }}',
                         data: data.map(row => row.styleAtk),
                         borderWidth: 1,
                         backgroundColor: '#e63a89',
                     },
                     {
-                        label: 'DEF',
+                        label: '{{ 'tl_patrickj_mjs.styleDef.0'|trans }}',
                         data: data.map(row => row.styleDef),
                         borderWidth: 1,
                         backgroundColor: '#71e39c',
                     },
                     {
-                        label: 'SPD',
+                        label: '{{ 'tl_patrickj_mjs.styleSpd.0'|trans }}',
                         data: data.map(row => row.styleSpd),
                         borderWidth: 1,
                         backgroundColor: '#65ccd3',
                     },
                     {
-                        label: 'LUK',
+                        label: '{{ 'tl_patrickj_mjs.styleLuk.0'|trans }}',
                         data: data.map(row => row.styleLuk),
                         borderWidth: 1,
                         backgroundColor: '#ae8152',
@@ -177,7 +344,67 @@
                 scales: {
                     y: {
                         stacked: true,
+                        min: 0,
                         afterFit: function(axis) {axis.width = 100;},
+                    },
+                },
+            },
+        });
+        const megaChart = new Chart(document.getElementById('chartjs-mega'), {
+            type: 'line',
+            data: {
+                labels: data.map(row => row.totalPlayed),
+                datasets: [
+                    {
+                        label: '{{ 'tl_patrickj_mjs.avgScore.0'|trans }}',
+                        data: data.map(row => row.avgScore),
+                        yAxisID: 'score',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.maxHonba.0'|trans }}',
+                        data: data.map(row => row.maxHonba),
+                        stepped: true,
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.avgTurns.0'|trans }}',
+                        data: data.map(row => row.avgTurns),
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateWin.0'|trans }}',
+                        data: data.map(row => row.rateWin),
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateTsumo.0'|trans }}',
+                        data: data.map(row => row.rateTsumo),
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }}',
+                        data: data.map(row => row.rateDealIn),
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateCall.0'|trans }}',
+                        data: data.map(row => row.rateCall),
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateRiichi.0'|trans }}',
+                        data: data.map(row => row.rateRiichi),
+                    },
+                ],
+            },
+            options: {
+                spanGaps: true,
+                scales: {
+                    y: {
+                        min: 0,
+                    },
+                    score: {
+                        axis: 'y',
+                        ticks: {
+                            stepSize: 100,
+                        },
+                        afterBuildTicks: axis => {
+                            if (!axis.ticks.find(el => el.value === 6000)) axis.ticks.push({value: 6000})
+                        },
                     },
                 },
             },

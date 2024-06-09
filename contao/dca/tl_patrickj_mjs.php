@@ -176,17 +176,16 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
         'recentResult' => [
             'inputType' => 'select',
             'options'   => [
-                '1*' => '😼🕶️',
-                '1'  => '1.',
-                '2'  => '2.',
-                '3'  => '3.',
-                '4'  => '4.',
+                1  => '1.',
+                2  => '2.',
+                3  => '3.',
+                4  => '4.',
             ],
             'eval'      => [
                 'includeBlankOption' => true,
                 'tl_class' => 'w25',
             ],
-            'sql'       => "varchar(2)",
+            'sql'       => "int(10)",
         ],
         'recentScore' => [
             'inputType' => 'text',

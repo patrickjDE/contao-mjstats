@@ -62,6 +62,7 @@
             options: {
                 spanGaps: true,
                 pointRadius: 0,
+                borderWidth: 2,
                 scales: {
                     y: {
                         suggestedMin: 13,
@@ -76,7 +77,9 @@
                         },
                         afterFit: function(axis) {axis.width = 100;},
                         afterBuildTicks: axis => {
-                            axis.ticks.push({value: 25})
+                            if (!axis.ticks.find(el => el.value === 14)) axis.ticks.push({value: 14})
+                            if (!axis.ticks.find(el => el.value === 24)) axis.ticks.push({value: 24})
+                            if (!axis.ticks.find(el => el.value === 25)) axis.ticks.push({value: 25})
                         },
                     },
                 },
@@ -94,15 +97,15 @@
                         yAxisID: 'rank',
                         showLine: false,
                         pointRadius: 2,
-                        borderColor: '#666',
-                        backgroundColor: '#666',
+                        borderColor: '#888',
+                        backgroundColor: '#888',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }}',
                         data: data.map(row => row.avgRank),
                         borderWidth: 1,
                         pointRadius: 0,
-                        borderColor: '#03f',
+                        borderColor: '#000',
                         backgroundColor: 'transparent',
                     },
                     {
@@ -119,8 +122,8 @@
                         data: averager(rawData, 'recentResult', 20).slice(offset),
                         borderWidth: 1,
                         pointRadius: 0,
-                        borderColor: '#79f',
-                        borderDash: [4, 2],
+                        borderColor: '#c8f',
+                        borderDash: [3, 1],
                         backgroundColor: 'transparent',
                     },
                     {
@@ -128,8 +131,8 @@
                         data: averager(rawData, 'recentResult', 10).slice(offset),
                         borderWidth: 1,
                         pointRadius: 0,
-                        borderColor: '#acf',
-                        borderDash: [4, 2],
+                        borderColor: '#e88',
+                        borderDash: [3, 1],
                         backgroundColor: 'transparent',
                     },
                 ],
@@ -142,7 +145,7 @@
                         reverse: true,
                         grid: {
                             color: context => {
-                                if (context.tick.value === 2.5) return '#000';
+                                if (context.tick.value === 2.5) return '#aaa';
                                 return '#0001';
                             }
                         },

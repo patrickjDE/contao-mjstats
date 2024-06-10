@@ -2,17 +2,17 @@
 {% trans_default_domain 'contao_default' %}
 
 {% block content %}
-    <h3>Current goals</h3>
+    <h3 id="anchor-goal">Current goals</h3>
     <canvas id="chartjs"></canvas>
-    <h3>Rank</h3>
+    <h3 id="anchor-rank">Rank</h3>
     <canvas id="chartjs-rank"></canvas>
-    <h3>Points</h3>
+    <h3 id="anchor-points">Points</h3>
     <canvas id="chartjs-points"></canvas>
-    <h3>Places</h3>
+    <h3 id="anchor-places">Places</h3>
     <canvas id="chartjs-places"></canvas>
-    <h3>"Style"</h3>
+    <h3 id="anchor-style">"Style"</h3>
     <canvas id="chartjs-style"></canvas>
-    <h3>Other</h3>
+    <h3 id="anchor-mega">Other</h3>
     <canvas id="chartjs-mega"></canvas>
 {% endblock %}
 
@@ -65,8 +65,11 @@
                 borderWidth: 2,
                 scales: {
                     y: {
-                        suggestedMin: 13,
+                        min: 13,
                         suggestedMax: 26,
+                        ticks: {
+                            stepSize: 1,
+                        },
                         grid: {
                             color: function(context) {
                                 if (context.tick.value === 14) return '#e40';
@@ -75,7 +78,7 @@
                                 return '#0001';
                             },
                         },
-                        afterFit: function(axis) {axis.width = 100;},
+                        afterFit: function(axis) {axis.width = 60;},
                         afterBuildTicks: axis => {
                             if (!axis.ticks.find(el => el.value === 14)) axis.ticks.push({value: 14})
                             if (!axis.ticks.find(el => el.value === 24)) axis.ticks.push({value: 24})
@@ -138,7 +141,7 @@
                 ],
             },
             options: {
-                aspectRatio: 3,
+                aspectRatio: 2.5,
                 spanGaps: true,
                 scales: {
                     y: {
@@ -157,7 +160,7 @@
                         afterBuildTicks: axis => {
                             if (!axis.ticks.find(el => el.value === 2.5)) axis.ticks.push({value: 2.5})
                         },
-                        afterFit: function(axis) {axis.width = 50;},
+                        afterFit: function(axis) {axis.width = 35;},
                     },
                     rank: {
                         axis: 'y',
@@ -168,7 +171,7 @@
                         ticks: {
                             count: 4,
                         },
-                        afterFit: function(axis) {axis.width = 50;},
+                        afterFit: function(axis) {axis.width = 25;},
                     },
                 },
             },
@@ -221,7 +224,6 @@
                 ],
             },
             options: {
-                aspectRatio: 1.5,
                 fill: true,
                 pointBorderColor: '#666',
                 spanGaps: true,
@@ -243,7 +245,7 @@
                         afterBuildTicks: axis => {
                             if (!axis.ticks.find(el => el.value === 25000)) axis.ticks.push({value: 25000})
                         },
-                        afterFit: function(axis) {axis.width = 100;},
+                        afterFit: function(axis) {axis.width = 60;},
                     },
                 },
             },
@@ -303,7 +305,7 @@
                         grid: {
                             z: 1,
                         },
-                        afterFit: function(axis) {axis.width = 100;},
+                        afterFit: function(axis) {axis.width = 60;},
                     },
                 },
             },
@@ -348,7 +350,7 @@
                     y: {
                         stacked: true,
                         min: 0,
-                        afterFit: function(axis) {axis.width = 100;},
+                        afterFit: function(axis) {axis.width = 60;},
                     },
                 },
             },
@@ -412,5 +414,7 @@
                 },
             },
         });
+
+        document.querySelectorAll('[id^="anchor-"]').forEach(el => el.addEventListener('click', e => window.location.hash = e.target.id))
     </script>
 {% endblock %}

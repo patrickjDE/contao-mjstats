@@ -39,4 +39,7 @@ $GLOBALS['TL_LANG']['tl_patrickj_mjs'] = [
     'rateDealIn' => ['Deal-in Rate', 'Percentage of games lost with Ron.'],
     'rateCall' => ['Call Rate', 'Percentage of games in which you called Chii/Pon/Kan.'],
     'rateRiichi' => ['Riichi Rate', 'Percentage of wins achieved with Riichi.'],
+
+    // Stats only
+    'avgMatchScore' => ['Avg Match Score', 'Average match score.'],
 ];

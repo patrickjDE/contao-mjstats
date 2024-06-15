@@ -24,12 +24,41 @@
             let sum = 0;
             return baseArr.map((row, i, arr) => {
                 sum += parseInt(row[propName]);
-                console.log(i + ' ' + sum)
-                if (i < length - 1) return null;
-                if (i === length - 1) return sum / length;
-                sum -= parseInt(arr[i - length][propName]);
-                return sum / length;
-            })
+                if (length > 0) {
+                    if (i < length - 1) return null;
+                    if (i === length - 1) return sum / length;
+                    sum -= parseInt(arr[i - length][propName]);
+                }
+                return sum / (length || (i + 1));
+            }).slice(offset)
+        }
+        const rater = (baseArr, propName, value, length) => {
+            let count = 0;
+            return baseArr.map((row, i, arr) => {
+                if (typeof value === 'function') {
+                    if (value(row[propName])) {
+                        count++;
+                    }
+                } else {
+                    if (row[propName] === value)  {
+                        count++
+                    }
+                }
+                if (length > 0) {
+                    if (i < length - 1) return null;
+                    if (i === length - 1) return Math.round(count / length * 10000) / 100;
+                    if (typeof value === 'function') {
+                        if (value(arr[i - length][propName])) {
+                            count--;
+                        }
+                    } else {
+                        if (arr[i - length][propName] === value) {
+                            count--
+                        }
+                    }
+                }
+                return Math.round(count / (length || (i + 1)) * 10000) / 100;
+            }).slice(offset)
         }
         const rawData = {{ statData|json_encode|raw }};
         const data = rawData.slice(offset);
@@ -113,7 +142,7 @@
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 50)',
-                        data: averager(rawData, 'recentResult', 50).slice(offset),
+                        data: averager(rawData, 'recentResult', 50),
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#03f',
@@ -122,7 +151,7 @@
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 20)',
-                        data: averager(rawData, 'recentResult', 20).slice(offset),
+                        data: averager(rawData, 'recentResult', 20),
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#c8f',
@@ -131,7 +160,7 @@
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 10)',
-                        data: averager(rawData, 'recentResult', 10).slice(offset),
+                        data: averager(rawData, 'recentResult', 10),
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#e88',

@@ -2,6 +2,10 @@
 {% trans_default_domain 'contao_default' %}
 
 {% block content %}
+    <div class="options">
+        <label for="offset">{{ 'mjs.offset'|trans }}</label>
+        <input type="number" name="offset" id="offset" value="200">
+    </div>
     <h3 id="anchor-goal">Current goals</h3>
     <canvas id="chartjs"></canvas>
     <h3 id="anchor-rank">Rank</h3>
@@ -19,7 +23,6 @@
 {% block script %}
     <script src="/bundles/patrickjmjs/js/chart.umd.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        const offset = 10;
         const averager = (baseArr, propName, length) => {
             let sum = 0;
             return baseArr.map((row, i, arr) => {
@@ -60,35 +63,89 @@
                 return Math.round(count / (length || (i + 1)) * 10000) / 100;
             }).slice(offset)
         }
+
+        const roomColors = {
+            default: '#666666',
+            bronze: '#d98d14',
+            silver: '#acb3bf',
+            gold: '#f2c600',
+            jade: '#00b359',
+            throne: '#bf2640',
+        };
+        const roomColor = context => roomColors[parsedData.room[context.tick.value] || 'default'];
+
+        const charts = [];
+        const offsetInput = document.getElementById('offset');
+        offsetInput.addEventListener('change', e => {
+            if (e.target.value > rawData.length) {
+                e.target.value = rawData.length;
+            }
+            offset = rawData.length - e.target.value;
+            data = rawData.slice(offset);
+            parseData();
+            charts.forEach(el => {
+                el.data.labels = parsedData.totalPlayed;
+                el.data.datasets.forEach(dataset => {
+                    dataset.data = parsedData[dataset.parsedDataName];
+                });
+                el.update('none');
+            });
+        });
+
         const rawData = {{ statData|json_encode|raw }};
-        const data = rawData.slice(offset);
+        let offset = rawData.length - offsetInput.value;
+        let data = rawData.slice(offset);
+        const parsedData = {};
+        for (let field in rawData[0]) {
+            parsedData[field] = [];
+        }
+        const parseData = () => {
+            for (let field in parsedData) {
+                parsedData[field] = data.map(row => row[field]);
+            }
+            parsedData['totalPlayed'] = data.map(row => row.totalPlayed + (row.rank ? (' (' + row.rank + ')') : ''));
+            for (let place of [1, 2, 3, 4]) {
+                parsedData['recentResult_rate50_' + place] = rater(rawData, 'recentResult', place, 50);
+            }
+            for (let count of [10, 20, 50]) {
+                parsedData['recentResult_avg' + count] = averager(rawData, 'recentResult', count);
+            }
+            parsedData['recentScore_avg'] = averager(rawData, 'recentScore');
+            parsedData['recentScore_avg50'] = averager(rawData, 'recentScore', 50);
+            parsedData['recentScore_rate50_negative'] = rater(rawData, 'recentScore', val => val < 0, 50);
+        }
+        parseData();
 
         const myChart = new Chart(document.getElementById('chartjs'), {
             type: 'line',
             data: {
-                labels: data.map(row => row.totalPlayed),
+                labels: parsedData.totalPlayed,
                 datasets: [
                     {
                         label: '{{ 'tl_patrickj_mjs.rateWin.0'|trans }}',
-                        data: data.map(row => row.rateWin),
+                        parsedDataName: 'rateWin',
+                        data: parsedData.rateWin,
                         borderColor: '#2a0',
                         backgroundColor: 'transparent',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }}',
-                        data: data.map(row => row.rateDealIn),
+                        parsedDataName: 'rateDealIn',
+                        data: parsedData.rateDealIn,
                         borderColor: '#d20',
                         backgroundColor: 'transparent',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }}',
-                        data: data.map(row => row.rateFourth),
+                        parsedDataName: 'rateFourth',
+                        data: parsedData.rateFourth,
                         borderColor: '#c3f',
                         backgroundColor: 'transparent',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }} (last 50)',
-                        data: rater(rawData, 'recentResult', 4, 50),
+                        parsedDataName: 'recentResult_rate50_4',
+                        data: parsedData.recentResult_rate50_4,
                         borderColor: '#c3f',
                         backgroundColor: 'transparent',
                         borderDash: [4, 2],
@@ -100,6 +157,11 @@
                 pointRadius: 0,
                 borderWidth: 2,
                 scales: {
+                    x: {
+                        ticks: {
+                            color: roomColor,
+                        },
+                    },
                     y: {
                         min: 13,
                         suggestedMax: 26,
@@ -124,15 +186,17 @@
                 },
             },
         });
+        charts.push(myChart);
         const rankChart = new Chart(document.getElementById('chartjs-rank'), {
             type: 'line',
             data: {
-                labels: data.map(row => row.totalPlayed),
+                labels: parsedData.totalPlayed,
                 datasets: [
                     {
                         // type: 'scatter',
                         label: '{{ 'tl_patrickj_mjs.recentResult.0'|trans }}',
-                        data: data.map(row => row.recentResult),
+                        parsedDataName: 'recentResult',
+                        data: parsedData.recentResult,
                         yAxisID: 'rank',
                         showLine: false,
                         pointRadius: 2,
@@ -141,7 +205,8 @@
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }}',
-                        data: data.map(row => row.avgRank),
+                        parsedDataName: 'avgRank',
+                        data: parsedData.avgRank,
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#000',
@@ -149,7 +214,8 @@
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 50)',
-                        data: averager(rawData, 'recentResult', 50),
+                        parsedDataName: 'recentResult_avg50',
+                        data: parsedData.recentResult_avg50,
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#03f',
@@ -158,7 +224,8 @@
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 20)',
-                        data: averager(rawData, 'recentResult', 20),
+                        parsedDataName: 'recentResult_avg20',
+                        data: parsedData.recentResult_avg20,
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#c8f',
@@ -167,7 +234,8 @@
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 10)',
-                        data: averager(rawData, 'recentResult', 10),
+                        parsedDataName: 'recentResult_avg10',
+                        data: parsedData.recentResult_avg10,
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#e88',
@@ -180,6 +248,11 @@
                 aspectRatio: 2.5,
                 spanGaps: true,
                 scales: {
+                    x: {
+                        ticks: {
+                            color: roomColor,
+                        },
+                    },
                     y: {
                         reverse: true,
                         grid: {
@@ -212,35 +285,40 @@
                 },
             },
         });
+        charts.push(rankChart);
         const pointsChart = new Chart(document.getElementById('chartjs-points'), {
             type: 'bar',
             data: {
-                labels: data.map(row => row.totalPlayed),
+                labels: parsedData.totalPlayed,
                 datasets: [
                     {
                         label: '{{ 'tl_patrickj_mjs.recentScoreFourth.0'|trans }}',
-                        data: data.map(row => row.recentScoreFourth),
+                        parsedDataName: 'recentScoreFourth',
+                        data: parsedData.recentScoreFourth,
                         borderWidth: 1,
                         borderColor: '#d20',
                         backgroundColor: '#d20',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.recentScoreThird.0'|trans }}',
-                        data: data.map(row => row.recentScoreThird),
+                        parsedDataName: 'recentScoreThird',
+                        data: parsedData.recentScoreThird,
                         borderWidth: 1,
                         borderColor: '#f80',
                         backgroundColor: '#f80',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.recentScoreSecond.0'|trans }}',
-                        data: data.map(row => row.recentScoreSecond),
+                        parsedDataName: 'recentScoreSecond',
+                        data: parsedData.recentScoreSecond,
                         borderWidth: 1,
                         borderColor: '#dd0',
                         backgroundColor: '#dd0',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.recentScoreFirst.0'|trans }}',
-                        data: data.map(row => row.recentScoreFirst),
+                        parsedDataName: 'recentScoreFirst',
+                        data: parsedData.recentScoreFirst,
                         borderWidth: 1,
                         borderColor: '#2a0',
                         backgroundColor: '#2a0',
@@ -248,7 +326,8 @@
                     {
                         type: 'line',
                         label: '{{ 'tl_patrickj_mjs.recentScore.0'|trans }}',
-                        data: data.map(row => row.recentScore),
+                        parsedDataName: 'recentScore',
+                        data: parsedData.recentScore,
                         borderWidth: 1,
                         pointRadius: 2,
                         borderColor: '#666',
@@ -260,7 +339,8 @@
                     {
                         type: 'line',
                         label: '{{ 'tl_patrickj_mjs.avgScore.0'|trans }}',
-                        data: averager(rawData, 'recentScore'),
+                        parsedDataName: 'recentScore_avg',
+                        data: parsedData.recentScore_avg,
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#666',
@@ -271,7 +351,8 @@
                     {
                         type: 'line',
                         label: '{{ 'tl_patrickj_mjs.avgScore.0'|trans }} (last 50)',
-                        data: averager(rawData, 'recentScore', 50),
+                        parsedDataName: 'recentScore_avg50',
+                        data: parsedData.recentScore_avg50,
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#666',
@@ -288,6 +369,9 @@
                 spanGaps: true,
                 scales: {
                     x: {
+                        ticks: {
+                            color: roomColor,
+                        },
                         stacked: true,
                     },
                     y: {
@@ -296,7 +380,6 @@
                         },
                         grid: {
                             color: context => {
-                                console.log(context)
                                 if (context.tick.value === 25000) return '#000';
                                 return '#0001';
                             }
@@ -309,42 +392,48 @@
                 },
             },
         });
+        charts.push(pointsChart);
         const placesChart = new Chart(document.getElementById('chartjs-places'), {
             type: 'line',
             data: {
-                labels: data.map(row => row.totalPlayed),
+                labels: parsedData.totalPlayed,
                 datasets: [
                     {
                         label: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }}',
-                        data: data.map(row => row.rateFourth),
+                        parsedDataName: 'rateFourth',
+                        data: parsedData.rateFourth,
                         borderWidth: 1,
                         borderColor: '#000',
                         backgroundColor: '#d20',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateThird.0'|trans }}',
-                        data: data.map(row => row.rateThird),
+                        parsedDataName: 'rateThird',
+                        data: parsedData.rateThird,
                         borderWidth: 1,
                         borderColor: '#000',
                         backgroundColor: '#f80',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateSecond.0'|trans }}',
-                        data: data.map(row => row.rateSecond),
+                        parsedDataName: 'rateSecond',
+                        data: parsedData.rateSecond,
                         borderWidth: 1,
                         borderColor: '#000',
                         backgroundColor: '#dd0',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateFirst.0'|trans }}',
-                        data: data.map(row => row.rateFirst),
+                        parsedDataName: 'rateFirst',
+                        data: parsedData.rateFirst,
                         borderWidth: 1,
                         borderColor: '#000',
                         backgroundColor: '#2a0',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateNegative.0'|trans }}',
-                        data: data.map(row => row.rateNegative),
+                        parsedDataName: 'rateNegative',
+                        data: parsedData.rateNegative,
                         borderWidth: 1,
                         borderColor: '#000',
                         backgroundColor: '#a00',
@@ -353,7 +442,8 @@
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }} (last 50)',
-                        data: rater(rawData, 'recentResult', 4, 50),
+                        parsedDataName: 'recentResult_rate50_4',
+                        data: parsedData.recentResult_rate50_4,
                         borderWidth: 1,
                         borderColor: '#fff',
                         backgroundColor: '#d204',
@@ -362,7 +452,8 @@
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateThird.0'|trans }} (last 50)',
-                        data: rater(rawData, 'recentResult', 3, 50),
+                        parsedDataName: 'recentResult_rate50_3',
+                        data: parsedData.recentResult_rate50_3,
                         borderWidth: 1,
                         borderColor: '#fff',
                         backgroundColor: '#f804',
@@ -371,7 +462,8 @@
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateSecond.0'|trans }} (last 50)',
-                        data: rater(rawData, 'recentResult', 2, 50),
+                        parsedDataName: 'recentResult_rate50_2',
+                        data: parsedData.recentResult_rate50_2,
                         borderWidth: 1,
                         borderColor: '#fff',
                         backgroundColor: '#dd04',
@@ -380,7 +472,8 @@
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateFirst.0'|trans }} (last 50)',
-                        data: rater(rawData, 'recentResult', 1, 50),
+                        parsedDataName: 'recentResult_rate50_1',
+                        data: parsedData.recentResult_rate50_1,
                         borderWidth: 1,
                         borderColor: '#fff',
                         backgroundColor: '#2104',
@@ -389,7 +482,8 @@
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateNegative.0'|trans }} (last 50)',
-                        data: rater(rawData, 'recentScore', val => val < 0, 50),
+                        parsedDataName: 'recentScore_rate50_negative',
+                        data: parsedData.recentScore_rate50_negative,
                         borderWidth: 1,
                         borderColor: '#fff',
                         backgroundColor: '#a004',
@@ -404,6 +498,11 @@
                 spanGaps: true,
                 pointRadius: 0,
                 scales: {
+                    x: {
+                        ticks: {
+                            color: roomColor,
+                        },
+                    },
                     y: {
                         stacked: true,
                         min: 0,
@@ -419,32 +518,37 @@
                 },
             },
         });
+        charts.push(placesChart);
         const styleChart = new Chart(document.getElementById('chartjs-style'), {
             type: 'line',
             data: {
-                labels: data.map(row => row.totalPlayed),
+                labels: parsedData.totalPlayed,
                 datasets: [
                     {
                         label: '{{ 'tl_patrickj_mjs.styleAtk.0'|trans }}',
-                        data: data.map(row => row.styleAtk),
+                        parsedDataName: 'styleAtk',
+                        data: parsedData.styleAtk,
                         borderWidth: 1,
                         backgroundColor: '#e63a89',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.styleDef.0'|trans }}',
-                        data: data.map(row => row.styleDef),
+                        parsedDataName: 'styleDef',
+                        data: parsedData.styleDef,
                         borderWidth: 1,
                         backgroundColor: '#71e39c',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.styleSpd.0'|trans }}',
-                        data: data.map(row => row.styleSpd),
+                        parsedDataName: 'styleSpd',
+                        data: parsedData.styleSpd,
                         borderWidth: 1,
                         backgroundColor: '#65ccd3',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.styleLuk.0'|trans }}',
-                        data: data.map(row => row.styleLuk),
+                        parsedDataName: 'styleLuk',
+                        data: parsedData.styleLuk,
                         borderWidth: 1,
                         backgroundColor: '#ae8152',
                     },
@@ -456,6 +560,11 @@
                 spanGaps: true,
                 pointRadius: 0,
                 scales: {
+                    x: {
+                        ticks: {
+                            color: roomColor,
+                        },
+                    },
                     y: {
                         stacked: true,
                         min: 0,
@@ -464,50 +573,70 @@
                 },
             },
         });
+        charts.push(styleChart);
         const megaChart = new Chart(document.getElementById('chartjs-mega'), {
             type: 'line',
             data: {
-                labels: data.map(row => row.totalPlayed),
+                labels: parsedData.totalPlayed,
                 datasets: [
                     {
                         label: '{{ 'tl_patrickj_mjs.avgScore.0'|trans }}',
-                        data: data.map(row => row.avgScore),
+                        parsedDataName: 'avgScore',
+                        data: parsedData.avgScore,
                         yAxisID: 'score',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.maxHonba.0'|trans }}',
-                        data: data.map(row => row.maxHonba),
+                        parsedDataName: 'maxHonba',
+                        data: parsedData.maxHonba,
                         stepped: true,
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.avgTurns.0'|trans }}',
-                        data: data.map(row => row.avgTurns),
+                        parsedDataName: 'avgTurns',
+                        data: parsedData.avgTurns,
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateWin.0'|trans }}',
-                        data: data.map(row => row.rateWin),
+                        parsedDataName: 'rateWin',
+                        data: parsedData.rateWin,
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateTsumo.0'|trans }}',
-                        data: data.map(row => row.rateTsumo),
+                        parsedDataName: 'rateTsumo',
+                        data: parsedData.rateTsumo,
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }}',
-                        data: data.map(row => row.rateDealIn),
+                        parsedDataName: 'rateDealIn',
+                        data: parsedData.rateDealIn,
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateCall.0'|trans }}',
-                        data: data.map(row => row.rateCall),
+                        parsedDataName: 'rateCall',
+                        data: parsedData.rateCall,
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateRiichi.0'|trans }}',
-                        data: data.map(row => row.rateRiichi),
+                        parsedDataName: 'rateRiichi',
+                        data: parsedData.rateRiichi,
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.exp.0'|trans }}',
+                        parsedDataName: 'exp',
+                        data: parsedData.exp,
+                        yAxisID: 'exp',
                     },
                 ],
             },
             options: {
                 spanGaps: true,
                 scales: {
+                    x: {
+                        ticks: {
+                            color: roomColor,
+                        },
+                    },
                     y: {
                         min: 0,
                     },
@@ -520,9 +649,13 @@
                             if (!axis.ticks.find(el => el.value === 6000)) axis.ticks.push({value: 6000})
                         },
                     },
+                    exp: {
+                        axis: 'y',
+                    },
                 },
             },
         });
+        charts.push(megaChart);
 
         document.querySelectorAll('[id^="anchor-"]').forEach(el => el.addEventListener('click', e => window.location.hash = e.target.id))
     </script>

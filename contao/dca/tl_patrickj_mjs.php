@@ -102,6 +102,12 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'expert1' => 'Expert ★',
                 'expert2' => 'Expert ★★',
                 'expert3' => 'Expert ★★★',
+                'master1' => 'Master ★',
+                'master2' => 'Master ★★',
+                'master3' => 'Master ★★★',
+                'saint1'  => 'Saint ★',
+                'saint2'  => 'Saint ★★',
+                'saint3'  => 'Saint ★★★',
             ],
             'eval'      => [
                 'includeBlankOption' => true,

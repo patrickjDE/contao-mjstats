@@ -63,6 +63,16 @@
                 return Math.round(count / (length || (i + 1)) * 10000) / 100;
             }).slice(offset)
         }
+        const recent = (baseArr, propName, length) => {
+            let count = 0;
+            return baseArr.map((row, i, arr) => {
+                const oi = i - length;
+                if (!arr[oi] || !arr[oi][propName] || !row[propName]) {
+                    return null;
+                }
+                return Math.round(((row[propName] * (i + 1)) - (arr[oi][propName] * (oi + 1))) / length * 100) / 100;
+            }).slice(offset)
+        }
 
         const roomColors = {
             default: '#666666',
@@ -103,6 +113,9 @@
             for (let field in parsedData) {
                 parsedData[field] = data.map(row => row[field]);
             }
+            for (let field in rawData[0]) {
+                parsedData[field + '_recent50'] = recent(rawData, field, 50);
+            }
             parsedData['totalPlayed'] = data.map(row => row.totalPlayed + (row.rank ? (' (' + row.rank + ')') : ''));
             for (let place of [1, 2, 3, 4]) {
                 parsedData['recentResult_rate50_' + place] = rater(rawData, 'recentResult', place, 50);
@@ -129,11 +142,27 @@
                         backgroundColor: 'transparent',
                     },
                     {
+                        label: '{{ 'tl_patrickj_mjs.rateWin.0'|trans }} (last 50)',
+                        parsedDataName: 'rateWin_recent50',
+                        data: parsedData.rateWin_recent50,
+                        borderColor: '#2a0',
+                        backgroundColor: 'transparent',
+                        borderDash: [4, 2],
+                    },
+                    {
                         label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }}',
                         parsedDataName: 'rateDealIn',
                         data: parsedData.rateDealIn,
                         borderColor: '#d20',
                         backgroundColor: 'transparent',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }} (last 50)',
+                        parsedDataName: 'rateDealIn_recent50',
+                        data: parsedData.rateDealIn_recent50,
+                        borderColor: '#d20',
+                        backgroundColor: 'transparent',
+                        borderDash: [4, 2],
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }}',
@@ -219,6 +248,16 @@
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#03f',
+                        borderDash: [3, 1],
+                        backgroundColor: 'transparent',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 50)',
+                        parsedDataName: 'avgRank_recent50',
+                        data: parsedData.avgRank_recent50,
+                        borderWidth: 1,
+                        pointRadius: 0,
+                        borderColor: '#0f3',
                         borderDash: [3, 1],
                         backgroundColor: 'transparent',
                     },
@@ -584,52 +623,96 @@
                         parsedDataName: 'avgScore',
                         data: parsedData.avgScore,
                         yAxisID: 'score',
+                        borderColor: '#d608',
+                        pointRadius: 2,
+                        borderWidth: 1,
+                        cubicInterpolationMode: 'monotone',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.maxHonba.0'|trans }}',
                         parsedDataName: 'maxHonba',
                         data: parsedData.maxHonba,
                         stepped: true,
+                        borderColor: '#da0',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.avgTurns.0'|trans }}',
                         parsedDataName: 'avgTurns',
                         data: parsedData.avgTurns,
+                        borderColor: '#ed0',
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.rateWin.0'|trans }}',
-                        parsedDataName: 'rateWin',
-                        data: parsedData.rateWin,
+                        label: '{{ 'tl_patrickj_mjs.avgTurns.0'|trans }} (last 50)',
+                        parsedDataName: 'avgTurns_recent50',
+                        data: parsedData.avgTurns_recent50,
+                        borderColor: '#ed0',
+                        borderDash: [4, 2],
                     },
+                    {#{#}
+                    {#    label: '{{ 'tl_patrickj_mjs.rateWin.0'|trans }}',#}
+                    {#    parsedDataName: 'rateWin',#}
+                    {#    data: parsedData.rateWin,#}
+                    {#},#}
                     {
                         label: '{{ 'tl_patrickj_mjs.rateTsumo.0'|trans }}',
                         parsedDataName: 'rateTsumo',
                         data: parsedData.rateTsumo,
+                        borderColor: '#a4d',
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }}',
-                        parsedDataName: 'rateDealIn',
-                        data: parsedData.rateDealIn,
+                        label: '{{ 'tl_patrickj_mjs.rateTsumo.0'|trans }}',
+                        parsedDataName: 'rateTsumo_recent50',
+                        data: parsedData.rateTsumo_recent50,
+                        borderColor: '#a4d',
+                        borderDash: [4, 2],
                     },
+                    {#{#}
+                    {#    label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }}',#}
+                    {#    parsedDataName: 'rateDealIn',#}
+                    {#    data: parsedData.rateDealIn,#}
+                    {#},#}
                     {
                         label: '{{ 'tl_patrickj_mjs.rateCall.0'|trans }}',
                         parsedDataName: 'rateCall',
                         data: parsedData.rateCall,
+                        borderColor: '#0d2',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateCall.0'|trans }} (last 50)',
+                        parsedDataName: 'rateCall_recent50',
+                        data: parsedData.rateCall_recent50,
+                        borderColor: '#0d2',
+                        borderDash: [4, 2],
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateRiichi.0'|trans }}',
                         parsedDataName: 'rateRiichi',
                         data: parsedData.rateRiichi,
+                        borderColor: '#7bd',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateRiichi.0'|trans }} (last 50)',
+                        parsedDataName: 'rateRiichi_recent50',
+                        data: parsedData.rateRiichi_recent50,
+                        borderColor: '#7bd',
+                        borderDash: [4, 2],
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.exp.0'|trans }}',
                         parsedDataName: 'exp',
                         data: parsedData.exp,
                         yAxisID: 'exp',
+                        borderColor: '#8888',
+                        pointRadius: 2,
+                        borderWidth: 1,
+                        cubicInterpolationMode: 'monotone',
                     },
                 ],
             },
             options: {
+                backgroundColor: 'transparent',
+                pointRadius: 0,
+                borderWidth: 2,
                 spanGaps: true,
                 scales: {
                     x: {

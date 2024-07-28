@@ -66,6 +66,8 @@
         const recent = (baseArr, propName, length) => {
             let count = 0;
             return baseArr.map((row, i, arr) => {
+                if (!length) return row[propName];
+
                 const oi = i - length;
                 if (!arr[oi] || !arr[oi][propName] || !row[propName]) {
                     return null;
@@ -106,26 +108,22 @@
         let offset = rawData.length - offsetInput.value;
         let data = rawData.slice(offset);
         const parsedData = {};
-        for (let field in rawData[0]) {
-            parsedData[field] = [];
-        }
         const parseData = () => {
-            for (let field in parsedData) {
-                parsedData[field] = data.map(row => row[field]);
-            }
-            for (let field in rawData[0]) {
-                parsedData[field + '_recent50'] = recent(rawData, field, 50);
-            }
             parsedData['totalPlayed'] = data.map(row => row.totalPlayed + (row.rank ? (' (' + row.rank + ')') : ''));
-            for (let place of [1, 2, 3, 4]) {
-                parsedData['recentResult_rate50_' + place] = rater(rawData, 'recentResult', place, 50);
-            }
-            for (let count of [10, 20, 50]) {
+            for (let count of ['', 25, 100]) {
+                for (let field in rawData[0]) {
+                    if ('totalPlayed' === field || 'tstamp' === field) continue;
+                    if (count && ('id' === field || 'date' === field || 'room' === field || 'platform' === field || 'rank' === field || 'gameType' === field || 'exp' === field || 'maxHonba' === field || field.match(/^style/) || field.match(/^recentScore(?!_)/))) continue;
+                    parsedData[field + count] = recent(rawData, field, count);
+                }
+                parsedData['diff' + count] = parsedData['rateWin' + count].map((el, i) => el - parsedData['rateDealIn' + count][i])
+                for (let place of [1, 2, 3, 4]) {
+                    parsedData['recentResult_rate' + count + '_' + place] = rater(rawData, 'recentResult', place, count);
+                }
                 parsedData['recentResult_avg' + count] = averager(rawData, 'recentResult', count);
+                parsedData['recentScore_avg' + count] = averager(rawData, 'recentScore', count);
+                parsedData['recentScore_rate' + count + '_negative'] = rater(rawData, 'recentScore', val => val < 0, count);
             }
-            parsedData['recentScore_avg'] = averager(rawData, 'recentScore');
-            parsedData['recentScore_avg50'] = averager(rawData, 'recentScore', 50);
-            parsedData['recentScore_rate50_negative'] = rater(rawData, 'recentScore', val => val < 0, 50);
         }
         parseData();
 
@@ -142,12 +140,23 @@
                         backgroundColor: 'transparent',
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.rateWin.0'|trans }} (last 50)',
-                        parsedDataName: 'rateWin_recent50',
-                        data: parsedData.rateWin_recent50,
+                        label: '{{ 'tl_patrickj_mjs.rateWin.0'|trans }} (last 100)',
+                        parsedDataName: 'rateWin100',
+                        data: parsedData.rateWin100,
+                        borderWidth: 1,
                         borderColor: '#2a0',
-                        backgroundColor: 'transparent',
-                        borderDash: [4, 2],
+                        backgroundColor: '#2a01',
+                        fill: '-1',
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateWin.0'|trans }} (last 25)',
+                        parsedDataName: 'rateWin25',
+                        data: parsedData.rateWin25,
+                        borderWidth: 1,
+                        borderColor: '#2a0',
+                        backgroundColor: '#2a01',
+                        fill: '-2',
+                        borderDash: [3, 2],
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }}',
@@ -157,27 +166,49 @@
                         backgroundColor: 'transparent',
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }} (last 50)',
-                        parsedDataName: 'rateDealIn_recent50',
-                        data: parsedData.rateDealIn_recent50,
+                        label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }} (last 100)',
+                        parsedDataName: 'rateDealIn100',
+                        data: parsedData.rateDealIn100,
+                        borderWidth: 1,
                         borderColor: '#d20',
-                        backgroundColor: 'transparent',
-                        borderDash: [4, 2],
+                        backgroundColor: '#d202',
+                        fill: '-1',
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }}',
-                        parsedDataName: 'rateFourth',
-                        data: parsedData.rateFourth,
-                        borderColor: '#c3f',
+                        label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }} (last 25)',
+                        parsedDataName: 'rateDealIn25',
+                        data: parsedData.rateDealIn25,
+                        borderWidth: 1,
+                        borderColor: '#d20',
+                        backgroundColor: '#d201',
+                        fill: '-2',
+                        borderDash: [3, 2],
+                    },
+                    {
+                        label: 'Difference',
+                        parsedDataName: 'diff',
+                        data: parsedData.diff,
+                        borderColor: '#fc0',
                         backgroundColor: 'transparent',
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }} (last 50)',
-                        parsedDataName: 'recentResult_rate50_4',
-                        data: parsedData.recentResult_rate50_4,
-                        borderColor: '#c3f',
-                        backgroundColor: 'transparent',
-                        borderDash: [4, 2],
+                        label: 'Difference (last 100)',
+                        parsedDataName: 'diff100',
+                        data: parsedData.diff100,
+                        borderWidth: 1,
+                        borderColor: '#fc0',
+                        backgroundColor: '#fc01',
+                        fill: '-1',
+                    },
+                    {
+                        label: 'Difference (last 25)',
+                        parsedDataName: 'diff25',
+                        data: parsedData.diff25,
+                        borderWidth: 1,
+                        borderColor: '#fc0',
+                        backgroundColor: '#fc01',
+                        fill: '-2',
+                        borderDash: [3, 2],
                     },
                 ],
             },
@@ -192,16 +223,16 @@
                         },
                     },
                     y: {
-                        min: 13,
+                        suggestedMin: 13,
                         suggestedMax: 26,
                         ticks: {
                             stepSize: 1,
                         },
                         grid: {
                             color: function(context) {
+                                if (context.tick.value === 10) return '#fc0';
                                 if (context.tick.value === 14) return '#e40';
                                 if (context.tick.value === 24) return '#3c0';
-                                if (context.tick.value === 25) return '#d5f';
                                 return '#0001';
                             },
                         },
@@ -229,8 +260,9 @@
                         yAxisID: 'rank',
                         showLine: false,
                         pointRadius: 2,
-                        borderColor: '#888',
-                        backgroundColor: '#888',
+                        borderColor: '#000',
+                        backgroundColor: '#000',
+                        fill: 'none',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }}',
@@ -239,52 +271,41 @@
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#000',
-                        backgroundColor: 'transparent',
+                        backgroundColor: '#0001',
+                        segment: {
+                            backgroundColor: context => context.p0.raw >= 2.5 && context.p1.raw >= 2.5 ? '#d201' : context.p0.raw <= 2.5 && context.p1.raw <= 2.5 ? '#2a01' : '#0001',
+                        },
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 50)',
-                        parsedDataName: 'recentResult_avg50',
-                        data: parsedData.recentResult_avg50,
-                        borderWidth: 1,
-                        pointRadius: 0,
-                        borderColor: '#03f',
-                        borderDash: [3, 1],
-                        backgroundColor: 'transparent',
-                    },
-                    {
-                        label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 50)',
-                        parsedDataName: 'avgRank_recent50',
-                        data: parsedData.avgRank_recent50,
-                        borderWidth: 1,
-                        pointRadius: 0,
-                        borderColor: '#0f3',
-                        borderDash: [3, 1],
-                        backgroundColor: 'transparent',
-                    },
-                    {
-                        label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 20)',
-                        parsedDataName: 'recentResult_avg20',
-                        data: parsedData.recentResult_avg20,
+                        label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 100)',
+                        parsedDataName: 'recentResult_avg100',
+                        data: parsedData.recentResult_avg100,
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#c8f',
-                        borderDash: [3, 1],
-                        backgroundColor: 'transparent',
+                        backgroundColor: '#c8f1',
+                        segment: {
+                            backgroundColor: context => context.p0.raw >= 2.5 && context.p1.raw >= 2.5 ? '#d201' : context.p0.raw <= 2.5 && context.p1.raw <= 2.5 ? '#2a01' : '#0001',
+                        },
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 10)',
-                        parsedDataName: 'recentResult_avg10',
-                        data: parsedData.recentResult_avg10,
+                        label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 25)',
+                        parsedDataName: 'recentResult_avg25',
+                        data: parsedData.recentResult_avg25,
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#e88',
-                        borderDash: [3, 1],
-                        backgroundColor: 'transparent',
+                        borderDash: [3, 2],
+                        backgroundColor: '#e881',
+                        segment: {
+                            backgroundColor: context => context.p0.raw >= 2.5 && context.p1.raw >= 2.5 ? '#d201' : context.p0.raw <= 2.5 && context.p1.raw <= 2.5 ? '#2a01' : '#0001',
+                        },
                     },
                 ],
             },
             options: {
                 aspectRatio: 2.5,
+                fill: {value: 2.5},
                 spanGaps: true,
                 scales: {
                     x: {
@@ -369,7 +390,7 @@
                         data: parsedData.recentScore,
                         borderWidth: 1,
                         pointRadius: 2,
-                        borderColor: '#666',
+                        borderColor: '#000',
                         backgroundColor: '#fff',
                         order: -1,
                         fill: false,
@@ -382,27 +403,27 @@
                         data: parsedData.recentScore_avg,
                         borderWidth: 1,
                         pointRadius: 0,
-                        borderColor: '#666',
+                        borderColor: '#000',
                         backgroundColor: 'transparent',
                         order: -1,
                         fill: false,
                     },
                     {
                         type: 'line',
-                        label: '{{ 'tl_patrickj_mjs.avgScore.0'|trans }} (last 50)',
-                        parsedDataName: 'recentScore_avg50',
-                        data: parsedData.recentScore_avg50,
+                        label: '{{ 'tl_patrickj_mjs.avgScore.0'|trans }} (last 100)',
+                        parsedDataName: 'recentScore_avg100',
+                        data: parsedData.recentScore_avg100,
                         borderWidth: 1,
                         pointRadius: 0,
-                        borderColor: '#666',
-                        borderDash: [3, 1],
+                        borderColor: '#fff',
                         backgroundColor: 'transparent',
-                        order: -1,
+                        order: -2,
                         fill: false,
                     },
                 ],
             },
             options: {
+                categoryPercentage: 1,
                 fill: true,
                 pointBorderColor: '#666',
                 spanGaps: true,
@@ -419,7 +440,7 @@
                         },
                         grid: {
                             color: context => {
-                                if (context.tick.value === 25000) return '#000';
+                                if (context.tick.value === 25000) return '#0005';
                                 return '#0001';
                             }
                         },
@@ -442,15 +463,16 @@
                         parsedDataName: 'rateFourth',
                         data: parsedData.rateFourth,
                         borderWidth: 1,
-                        borderColor: '#000',
+                        borderColor: '#d20',
                         backgroundColor: '#d20',
+                        fill: 'start',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateThird.0'|trans }}',
                         parsedDataName: 'rateThird',
                         data: parsedData.rateThird,
                         borderWidth: 1,
-                        borderColor: '#000',
+                        borderColor: '#f80',
                         backgroundColor: '#f80',
                     },
                     {
@@ -458,7 +480,7 @@
                         parsedDataName: 'rateSecond',
                         data: parsedData.rateSecond,
                         borderWidth: 1,
-                        borderColor: '#000',
+                        borderColor: '#dd0',
                         backgroundColor: '#dd0',
                     },
                     {
@@ -466,7 +488,7 @@
                         parsedDataName: 'rateFirst',
                         data: parsedData.rateFirst,
                         borderWidth: 1,
-                        borderColor: '#000',
+                        borderColor: '#2a0',
                         backgroundColor: '#2a0',
                     },
                     {
@@ -474,66 +496,124 @@
                         parsedDataName: 'rateNegative',
                         data: parsedData.rateNegative,
                         borderWidth: 1,
-                        borderColor: '#000',
-                        backgroundColor: '#a00',
+                        borderColor: '#0004',
+                        backgroundColor: '#0004',
+                        fill: 'start',
                         stack: 'unstacked',
                         order: -5,
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }} (last 50)',
-                        parsedDataName: 'recentResult_rate50_4',
-                        data: parsedData.recentResult_rate50_4,
+                        label: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }} (last 100)',
+                        parsedDataName: 'recentResult_rate100_4',
+                        data: parsedData.recentResult_rate100_4,
                         borderWidth: 1,
-                        borderColor: '#fff',
-                        backgroundColor: '#d204',
-                        stack: 'last50',
+                        borderColor: '#000',
+                        backgroundColor: '#b204',
+                        stack: 'last100',
                         order: -10,
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.rateThird.0'|trans }} (last 50)',
-                        parsedDataName: 'recentResult_rate50_3',
-                        data: parsedData.recentResult_rate50_3,
+                        label: '{{ 'tl_patrickj_mjs.rateThird.0'|trans }} (last 100)',
+                        parsedDataName: 'recentResult_rate100_3',
+                        data: parsedData.recentResult_rate100_3,
                         borderWidth: 1,
-                        borderColor: '#fff',
+                        borderColor: '#000',
                         backgroundColor: '#f804',
-                        stack: 'last50',
+                        stack: 'last100',
                         order: -10,
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.rateSecond.0'|trans }} (last 50)',
-                        parsedDataName: 'recentResult_rate50_2',
-                        data: parsedData.recentResult_rate50_2,
+                        label: '{{ 'tl_patrickj_mjs.rateSecond.0'|trans }} (last 100)',
+                        parsedDataName: 'recentResult_rate100_2',
+                        data: parsedData.recentResult_rate100_2,
                         borderWidth: 1,
-                        borderColor: '#fff',
+                        borderColor: '#000',
                         backgroundColor: '#dd04',
-                        stack: 'last50',
+                        stack: 'last100',
                         order: -10,
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.rateFirst.0'|trans }} (last 50)',
-                        parsedDataName: 'recentResult_rate50_1',
-                        data: parsedData.recentResult_rate50_1,
+                        label: '{{ 'tl_patrickj_mjs.rateFirst.0'|trans }} (last 100)',
+                        parsedDataName: 'recentResult_rate100_1',
+                        data: parsedData.recentResult_rate100_1,
                         borderWidth: 1,
-                        borderColor: '#fff',
-                        backgroundColor: '#2104',
-                        stack: 'last50',
+                        borderColor: '#000',
+                        backgroundColor: '#2804',
+                        stack: 'last100',
                         order: -10,
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.rateNegative.0'|trans }} (last 50)',
-                        parsedDataName: 'recentScore_rate50_negative',
-                        data: parsedData.recentScore_rate50_negative,
+                        label: '{{ 'tl_patrickj_mjs.rateNegative.0'|trans }} (last 100)',
+                        parsedDataName: 'recentScore_rate100_negative',
+                        data: parsedData.recentScore_rate100_negative,
                         borderWidth: 1,
-                        borderColor: '#fff',
-                        backgroundColor: '#a004',
-                        stack: 'last50unstacked',
+                        borderColor: '#000',
+                        backgroundColor: '#0002',
+                        fill: 'start',
+                        stack: 'last100unstacked',
                         order: -15,
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }} (last 25)',
+                        parsedDataName: 'recentResult_rate25_4',
+                        data: parsedData.recentResult_rate25_4,
+                        borderWidth: 1,
+                        borderColor: '#fff',
+                        borderDash: [3, 2],
+                        backgroundColor: 'transparent',
+                        fill: 'start',
+                        stack: 'last25',
+                        order: -20,
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateThird.0'|trans }} (last 25)',
+                        parsedDataName: 'recentResult_rate25_3',
+                        data: parsedData.recentResult_rate25_3,
+                        borderWidth: 1,
+                        borderColor: '#fff',
+                        borderDash: [3, 2],
+                        backgroundColor: 'transparent',
+                        stack: 'last25',
+                        order: -20,
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateSecond.0'|trans }} (last 25)',
+                        parsedDataName: 'recentResult_rate25_2',
+                        data: parsedData.recentResult_rate25_2,
+                        borderWidth: 1,
+                        borderColor: '#fff',
+                        borderDash: [3, 2],
+                        backgroundColor: 'transparent',
+                        stack: 'last25',
+                        order: -20,
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateFirst.0'|trans }} (last 25)',
+                        parsedDataName: 'recentResult_rate25_1',
+                        data: parsedData.recentResult_rate25_1,
+                        borderWidth: 1,
+                        borderColor: '#fff',
+                        borderDash: [3, 2],
+                        backgroundColor: 'transparent',
+                        stack: 'last25',
+                        order: -20,
+                    },
+                    {
+                        label: '{{ 'tl_patrickj_mjs.rateNegative.0'|trans }} (last 25)',
+                        parsedDataName: 'recentScore_rate25_negative',
+                        data: parsedData.recentScore_rate25_negative,
+                        borderWidth: 1,
+                        borderColor: '#fff',
+                        borderDash: [3, 2],
+                        backgroundColor: 'transparent',
+                        stack: 'last25unstacked',
+                        order: -25,
                     },
                 ],
             },
             options: {
-                aspectRatio: 4,
-                fill: true,
+                aspectRatio: 3,
+                fill: '-1',
                 spanGaps: true,
                 pointRadius: 0,
                 scales: {
@@ -642,17 +722,14 @@
                         borderColor: '#ed0',
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.avgTurns.0'|trans }} (last 50)',
-                        parsedDataName: 'avgTurns_recent50',
-                        data: parsedData.avgTurns_recent50,
+                        label: '{{ 'tl_patrickj_mjs.avgTurns.0'|trans }} (last 100)',
+                        parsedDataName: 'avgTurns100',
+                        data: parsedData.avgTurns100,
+                        borderWidth: 1,
                         borderColor: '#ed0',
-                        borderDash: [4, 2],
+                        fill: '-1',
+                        backgroundColor: '#ed01'
                     },
-                    {#{#}
-                    {#    label: '{{ 'tl_patrickj_mjs.rateWin.0'|trans }}',#}
-                    {#    parsedDataName: 'rateWin',#}
-                    {#    data: parsedData.rateWin,#}
-                    {#},#}
                     {
                         label: '{{ 'tl_patrickj_mjs.rateTsumo.0'|trans }}',
                         parsedDataName: 'rateTsumo',
@@ -660,17 +737,14 @@
                         borderColor: '#a4d',
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.rateTsumo.0'|trans }}',
-                        parsedDataName: 'rateTsumo_recent50',
-                        data: parsedData.rateTsumo_recent50,
+                        label: '{{ 'tl_patrickj_mjs.rateTsumo.0'|trans }} (last 100)',
+                        parsedDataName: 'rateTsumo100',
+                        data: parsedData.rateTsumo100,
+                        borderWidth: 1,
                         borderColor: '#a4d',
-                        borderDash: [4, 2],
+                        fill: '-1',
+                        backgroundColor: '#a4d1'
                     },
-                    {#{#}
-                    {#    label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }}',#}
-                    {#    parsedDataName: 'rateDealIn',#}
-                    {#    data: parsedData.rateDealIn,#}
-                    {#},#}
                     {
                         label: '{{ 'tl_patrickj_mjs.rateCall.0'|trans }}',
                         parsedDataName: 'rateCall',
@@ -678,11 +752,13 @@
                         borderColor: '#0d2',
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.rateCall.0'|trans }} (last 50)',
-                        parsedDataName: 'rateCall_recent50',
-                        data: parsedData.rateCall_recent50,
+                        label: '{{ 'tl_patrickj_mjs.rateCall.0'|trans }} (last 100)',
+                        parsedDataName: 'rateCall100',
+                        data: parsedData.rateCall100,
+                        borderWidth: 1,
                         borderColor: '#0d2',
-                        borderDash: [4, 2],
+                        fill: '-1',
+                        backgroundColor: '#0d21'
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateRiichi.0'|trans }}',
@@ -691,11 +767,13 @@
                         borderColor: '#7bd',
                     },
                     {
-                        label: '{{ 'tl_patrickj_mjs.rateRiichi.0'|trans }} (last 50)',
-                        parsedDataName: 'rateRiichi_recent50',
-                        data: parsedData.rateRiichi_recent50,
+                        label: '{{ 'tl_patrickj_mjs.rateRiichi.0'|trans }} (last 100)',
+                        parsedDataName: 'rateRiichi100',
+                        data: parsedData.rateRiichi100,
+                        borderWidth: 1,
                         borderColor: '#7bd',
-                        borderDash: [4, 2],
+                        fill: '-1',
+                        backgroundColor: '#7bd1'
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.exp.0'|trans }}',
@@ -721,7 +799,6 @@
                         },
                     },
                     y: {
-                        min: 0,
                     },
                     score: {
                         axis: 'y',

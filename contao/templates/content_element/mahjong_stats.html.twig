@@ -6,7 +6,7 @@
         <label for="offset">{{ 'mjs.offset'|trans }}</label>
         <input type="number" name="offset" id="offset" value="200">
     </div>
-    <h3 id="anchor-goal">Current goals</h3>
+    <h3 id="anchor">Current goals</h3>
     <canvas id="chartjs"></canvas>
     <h3 id="anchor-rank">Rank</h3>
     <canvas id="chartjs-rank"></canvas>
@@ -740,6 +740,6 @@
         });
         charts.push(megaChart);
 
-        document.querySelectorAll('[id^="anchor-"]').forEach(el => el.addEventListener('click', e => window.location.hash = e.target.id))
+        document.querySelectorAll('[id^="anchor"]').forEach(el => el.addEventListener('click', e => window.location.hash = e.target.id.replace('anchor', 'chartjs')))
     </script>
 {% endblock %}

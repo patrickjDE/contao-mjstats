@@ -28,7 +28,7 @@ class MahjongStats extends AbstractContentElementController
 //            Database::getInstance()->prepare("UPDATE tl_patrickj_mjs SET rateFirst = (SELECT ROUND(COUNT(id)/?*100, 2) num FROM tl_patrickj_mjs WHERE totalPlayed <= ? AND recentResult = 1) WHERE ISNULL(rateFirst) AND totalPlayed = ?")->execute($i, $i, $i)->affectedRows;
 //        }
 
-        $arrStats = MjsModel::findAll(['return' => 'Array', 'order' => 'date, totalPlayed']);
+        $arrStats = MjsModel::findBy(['gameType = ?'], ['south'], ['return' => 'Array', 'order' => 'date, totalPlayed']);
         $template->statData = $arrStats;
 
         return $template->getResponse();

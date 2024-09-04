@@ -116,7 +116,10 @@
                     if (count && ('id' === field || 'date' === field || 'room' === field || 'platform' === field || 'rank' === field || 'gameType' === field || 'exp' === field || 'maxHonba' === field || field.match(/^style/) || field.match(/^recentScore(?!_)/))) continue;
                     parsedData[field + count] = recent(rawData, field, count);
                 }
-                parsedData['diff' + count] = parsedData['rateWin' + count].map((el, i) => el - parsedData['rateDealIn' + count][i])
+                parsedData['diff' + count] = parsedData['rateWin' + count].map((el, i) => {
+                    if (el === null) return null;
+                    return el - parsedData['rateDealIn' + count][i]
+                })
                 for (let place of [1, 2, 3, 4]) {
                     parsedData['recentResult_rate' + count + '_' + place] = rater(rawData, 'recentResult', place, count);
                 }
@@ -127,6 +130,7 @@
         }
         parseData();
 
+        let lastContext = undefined;
         const myChart = new Chart(document.getElementById('chartjs'), {
             type: 'line',
             data: {
@@ -147,6 +151,11 @@
                         borderColor: '#2a0',
                         backgroundColor: '#2a01',
                         fill: '-1',
+                        segment: {
+                            backgroundColor: context => {
+                                return context.p1.raw >= 24 ? '#2a02' : context.p0.raw >= parseFloat(parsedData.rateWin[context.p0DataIndex]) && context.p1.raw >= parseFloat(parsedData.rateWin[context.p1DataIndex]) ? '#2a01' : context.p0.raw <= parseFloat(parsedData.rateWin[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.rateWin[context.p1DataIndex]) ? '#0001' : '#0001'
+                            },
+                        },
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateWin.0'|trans }} (last 25)',
@@ -156,6 +165,11 @@
                         borderColor: '#2a0',
                         backgroundColor: '#2a01',
                         fill: '-2',
+                        segment: {
+                            backgroundColor: context => {
+                                return context.p1.raw >= 24 ? '#2a02' : context.p0.raw >= parseFloat(parsedData.rateWin[context.p0DataIndex]) && context.p1.raw >= parseFloat(parsedData.rateWin[context.p1DataIndex]) ? '#2a01' : context.p0.raw <= parseFloat(parsedData.rateWin[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.rateWin[context.p1DataIndex]) ? '#0001' : '#0001'
+                            },
+                        },
                         borderDash: [3, 2],
                     },
                     {
@@ -172,6 +186,11 @@
                         borderWidth: 1,
                         borderColor: '#d20',
                         backgroundColor: '#d202',
+                        segment: {
+                            backgroundColor: context => {
+                                return context.p1.raw <= 14 ? '#d202' : context.p0.raw <= parseFloat(parsedData.rateDealIn[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.rateDealIn[context.p1DataIndex]) ? '#d201' : context.p0.raw <= parseFloat(parsedData.rateDealIn[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.rateDealIn[context.p1DataIndex]) ? '#0001' : '#0001'
+                            },
+                        },
                         fill: '-1',
                     },
                     {
@@ -181,6 +200,11 @@
                         borderWidth: 1,
                         borderColor: '#d20',
                         backgroundColor: '#d201',
+                        segment: {
+                            backgroundColor: context => {
+                                return context.p1.raw <= 14 ? '#d202' : context.p0.raw <= parseFloat(parsedData.rateDealIn[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.rateDealIn[context.p1DataIndex]) ? '#d201' : context.p0.raw <= parseFloat(parsedData.rateDealIn[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.rateDealIn[context.p1DataIndex]) ? '#0001' : '#0001'
+                            },
+                        },
                         fill: '-2',
                         borderDash: [3, 2],
                     },
@@ -198,6 +222,14 @@
                         borderWidth: 1,
                         borderColor: '#fc0',
                         backgroundColor: '#fc01',
+                        segment: {
+                            backgroundColor: context => {
+                                if (!context.p0.skip) {
+                                    lastContext = context;
+                                }
+                                return context.p1.raw >= 10 ? '#fc02' : (!context.p0.skip && context.p0.raw || lastContext?.p0.raw) >= parseFloat(parsedData.diff[context.p0DataIndex]) && context.p1.raw >= parseFloat(parsedData.diff[context.p1DataIndex]) ? '#fc01' : (!context.p0.skip && context.p0.raw || lastContext?.p0.raw) <= parseFloat(parsedData.diff[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.diff[context.p1DataIndex]) ? '#0001' : '#0001'
+                            },
+                        },
                         fill: '-1',
                     },
                     {
@@ -207,6 +239,14 @@
                         borderWidth: 1,
                         borderColor: '#fc0',
                         backgroundColor: '#fc01',
+                        segment: {
+                            backgroundColor: context => {
+                                if (!context.p0.skip) {
+                                    lastContext = context;
+                                }
+                                return context.p1.raw >= 10 ? '#fc02' : (!context.p0.skip && context.p0.raw || lastContext?.p0.raw) >= parseFloat(parsedData.diff[context.p0DataIndex]) && context.p1.raw >= parseFloat(parsedData.diff[context.p1DataIndex]) ? '#fc01' : (!context.p0.skip && context.p0.raw || lastContext?.p0.raw) <= parseFloat(parsedData.diff[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.diff[context.p1DataIndex]) ? '#0001' : '#0001'
+                            },
+                        },
                         fill: '-2',
                         borderDash: [3, 2],
                     },

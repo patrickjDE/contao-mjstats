@@ -4,7 +4,11 @@
 {% block content %}
     <div class="options">
         <label for="offset">{{ 'mjs.offset'|trans }}</label>
-        <input type="number" name="offset" id="offset" value="200">
+        <input x-data x-model.number="$store.graphs.numShow" type="number" step="10" min="10" name="offset" id="offset">
+        <label for="recent">Recent (small)</label>
+        <input x-data x-model.number="$store.graphs.numRecentSmall" type="number" min="1" name="recent" id="offset">
+        <label for="recent2">Recent (big)</label>
+        <input x-data x-model.number="$store.graphs.numRecentBig" type="number" step="10" min="10" name="recent2" id="offset">
     </div>
     <h3 id="anchor">Current goals</h3>
     <canvas id="chartjs"></canvas>
@@ -20,9 +24,26 @@
     <canvas id="chartjs-mega"></canvas>
 {% endblock %}
 
+{% block style %}
+    <style>
+        .mod_article.block {
+            overflow: unset;
+        }
+        .options {
+            position: sticky;
+            top: 0;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+            background: #fff;
+        }
+    </style>
+{% endblock %}
+
 {% block script %}
     <script src="/bundles/patrickjmjs/js/chart.umd.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
+    document.addEventListener('alpine:init', () => {
+        // helper functions
         const averager = (baseArr, propName, length) => {
             let sum = 0;
             return baseArr.map((row, i, arr) => {
@@ -33,7 +54,7 @@
                     sum -= parseInt(arr[i - length][propName]);
                 }
                 return sum / (length || (i + 1));
-            }).slice(offset)
+            })
         }
         const rater = (baseArr, propName, value, length) => {
             let count = 0;
@@ -61,7 +82,7 @@
                     }
                 }
                 return Math.round(count / (length || (i + 1)) * 10000) / 100;
-            }).slice(offset)
+            })
         }
         const recent = (baseArr, propName, length) => {
             let count = 0;
@@ -73,9 +94,10 @@
                     return null;
                 }
                 return Math.round(((row[propName] * (i + 1)) - (arr[oi][propName] * (oi + 1))) / length * 100) / 100;
-            }).slice(offset)
+            })
         }
 
+        // lookup data & helpers
         const roomColors = {
             default: '#666666',
             bronze: '#d98d14',
@@ -86,88 +108,127 @@
         };
         const roomColor = context => roomColors[parsedData.room[context.tick.value] || 'default'];
 
-        const charts = [];
-        const offsetInput = document.getElementById('offset');
-        offsetInput.addEventListener('change', e => {
-            if (e.target.value > rawData.length) {
-                e.target.value = rawData.length;
+        // statistical data
+        const rawData = {{ statData|json_encode|raw }};
+        let data;
+        let offset;
+        const parsedData = {};
+        const slicedData = {};
+        const parseData = (name, value) => {
+            for (let field in rawData[0]) {
+                if ('totalPlayed' === field || 'tstamp' === field) continue;
+                if (name && ('id' === field || 'date' === field || 'room' === field || 'platform' === field || 'rank' === field || 'gameType' === field || 'exp' === field || 'maxHonba' === field || field.match(/^style/) || field.match(/^recentScore(?!_)/))) continue;
+                parsedData[field + name] = recent(rawData, field, value);
             }
-            offset = rawData.length - e.target.value;
-            data = rawData.slice(offset);
-            parseData();
+            parsedData['diff' + name] = parsedData['rateWin' + name].map((el, i) => {
+                if (el === null) return null;
+                return el - parsedData['rateDealIn' + name][i]
+            })
+            for (let place of [1, 2, 3, 4]) {
+                parsedData['recentResult_rate' + name + '_' + place] = rater(rawData, 'recentResult', place, value);
+            }
+            parsedData['recentResult_avg' + name] = averager(rawData, 'recentResult', value);
+            parsedData['recentScore_avg' + name] = averager(rawData, 'recentScore', value);
+            parsedData['recentScore_rate' + name + '_negative'] = rater(rawData, 'recentScore', val => val < 0, value);
+        }
+        parseData('', 0);
+
+        // charts
+        const charts = [];
+        updateCharts = () => {
             charts.forEach(el => {
-                el.data.labels = parsedData.totalPlayed;
+                el.data.labels = slicedData.totalPlayed;
                 el.data.datasets.forEach(dataset => {
-                    dataset.data = parsedData[dataset.parsedDataName];
+                    let replacementValue = '';
+                    if (dataset.label.match(/last \d+/)) {
+                        const replacementType = dataset.parsedDataName.match(/(Big|Small)/);
+                        if (replacementType) {
+                            replacementValue = Alpine.store('graphs')['numRecent' + replacementType[0]];
+                        }
+                    }
+                    if (replacementValue) {
+                        dataset.label = dataset.label.replace(/last \d+/, 'last ' + replacementValue)
+                    }
+                    dataset.data = slicedData[dataset.parsedDataName];
                 });
                 el.update('none');
             });
-        });
-
-        const rawData = {{ statData|json_encode|raw }};
-        let offset = rawData.length - offsetInput.value;
-        let data = rawData.slice(offset);
-        const parsedData = {};
-        const parseData = () => {
-            parsedData['totalPlayed'] = data.map(row => row.totalPlayed + (row.rank ? (' (' + row.rank + ')') : ''));
-            for (let count of ['', 25, 100]) {
-                for (let field in rawData[0]) {
-                    if ('totalPlayed' === field || 'tstamp' === field) continue;
-                    if (count && ('id' === field || 'date' === field || 'room' === field || 'platform' === field || 'rank' === field || 'gameType' === field || 'exp' === field || 'maxHonba' === field || field.match(/^style/) || field.match(/^recentScore(?!_)/))) continue;
-                    parsedData[field + count] = recent(rawData, field, count);
-                }
-                parsedData['diff' + count] = parsedData['rateWin' + count].map((el, i) => {
-                    if (el === null) return null;
-                    return el - parsedData['rateDealIn' + count][i]
-                })
-                for (let place of [1, 2, 3, 4]) {
-                    parsedData['recentResult_rate' + count + '_' + place] = rater(rawData, 'recentResult', place, count);
-                }
-                parsedData['recentResult_avg' + count] = averager(rawData, 'recentResult', count);
-                parsedData['recentScore_avg' + count] = averager(rawData, 'recentScore', count);
-                parsedData['recentScore_rate' + count + '_negative'] = rater(rawData, 'recentScore', val => val < 0, count);
-            }
         }
-        parseData();
 
+        // reactivity
+        Alpine.store('graphs', {
+            numShow: 200,
+            numRecentSmall: 25,
+            numRecentBig: 100,
+            init() {
+                Alpine.effect(() => {
+                    if (this.numShow > rawData.length) {
+                        this.numShow = rawData.length;
+                    }
+                    offset = rawData.length - this.numShow;
+                    data = rawData.slice(offset);
+                    parsedData['totalPlayed'] = rawData.map(row => row.totalPlayed + (row.rank ? (' (' + row.rank + ')') : ''));
+                    for (const key in parsedData) {
+                        slicedData[key] = parsedData[key].slice(offset)
+                    }
+                    updateCharts();
+                })
+                Alpine.effect(() => {
+                    parseData('Small', this.numRecentSmall);
+                    for (const key in parsedData) {
+                        slicedData[key] = parsedData[key].slice(offset)
+                    }
+                    updateCharts();
+                })
+                Alpine.effect(() => {
+                    parseData('Big', this.numRecentBig);
+                    for (const key in parsedData) {
+                        slicedData[key] = parsedData[key].slice(offset)
+                    }
+                    updateCharts();
+                })
+            }
+        })
+
+        // chart initialization
         let lastContext = undefined;
         const myChart = new Chart(document.getElementById('chartjs'), {
             type: 'line',
             data: {
-                labels: parsedData.totalPlayed,
+                labels: slicedData.totalPlayed,
                 datasets: [
                     {
                         label: '{{ 'tl_patrickj_mjs.rateWin.0'|trans }}',
                         parsedDataName: 'rateWin',
-                        data: parsedData.rateWin,
+                        data: slicedData.rateWin,
                         borderColor: '#2a0',
                         backgroundColor: 'transparent',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateWin.0'|trans }} (last 100)',
-                        parsedDataName: 'rateWin100',
-                        data: parsedData.rateWin100,
+                        parsedDataName: 'rateWinBig',
+                        data: slicedData.rateWinBig,
                         borderWidth: 1,
                         borderColor: '#2a0',
                         backgroundColor: '#2a01',
                         fill: '-1',
                         segment: {
                             backgroundColor: context => {
-                                return context.p1.raw >= 24 ? '#2a02' : context.p0.raw >= parseFloat(parsedData.rateWin[context.p0DataIndex]) && context.p1.raw >= parseFloat(parsedData.rateWin[context.p1DataIndex]) ? '#2a01' : context.p0.raw <= parseFloat(parsedData.rateWin[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.rateWin[context.p1DataIndex]) ? '#0001' : '#0001'
+                                return context.p1.raw >= 24 ? '#2a02' : context.p0.raw >= parseFloat(slicedData.rateWin[context.p0DataIndex]) && context.p1.raw >= parseFloat(slicedData.rateWin[context.p1DataIndex]) ? '#2a01' : context.p0.raw <= parseFloat(slicedData.rateWin[context.p0DataIndex]) && context.p1.raw <= parseFloat(slicedData.rateWin[context.p1DataIndex]) ? '#0001' : '#0001'
                             },
                         },
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateWin.0'|trans }} (last 25)',
-                        parsedDataName: 'rateWin25',
-                        data: parsedData.rateWin25,
+                        parsedDataName: 'rateWinSmall',
+                        data: slicedData.rateWinSmall,
                         borderWidth: 1,
                         borderColor: '#2a0',
                         backgroundColor: '#2a01',
                         fill: '-2',
                         segment: {
                             backgroundColor: context => {
-                                return context.p1.raw >= 24 ? '#2a02' : context.p0.raw >= parseFloat(parsedData.rateWin[context.p0DataIndex]) && context.p1.raw >= parseFloat(parsedData.rateWin[context.p1DataIndex]) ? '#2a01' : context.p0.raw <= parseFloat(parsedData.rateWin[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.rateWin[context.p1DataIndex]) ? '#0001' : '#0001'
+                                return context.p1.raw >= 24 ? '#2a02' : context.p0.raw >= parseFloat(slicedData.rateWin[context.p0DataIndex]) && context.p1.raw >= parseFloat(slicedData.rateWin[context.p1DataIndex]) ? '#2a01' : context.p0.raw <= parseFloat(slicedData.rateWin[context.p0DataIndex]) && context.p1.raw <= parseFloat(slicedData.rateWin[context.p1DataIndex]) ? '#0001' : '#0001'
                             },
                         },
                         borderDash: [3, 2],
@@ -175,34 +236,34 @@
                     {
                         label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }}',
                         parsedDataName: 'rateDealIn',
-                        data: parsedData.rateDealIn,
+                        data: slicedData.rateDealIn,
                         borderColor: '#d20',
                         backgroundColor: 'transparent',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }} (last 100)',
-                        parsedDataName: 'rateDealIn100',
-                        data: parsedData.rateDealIn100,
+                        parsedDataName: 'rateDealInBig',
+                        data: slicedData.rateDealInBig,
                         borderWidth: 1,
                         borderColor: '#d20',
                         backgroundColor: '#d202',
                         segment: {
                             backgroundColor: context => {
-                                return context.p1.raw <= 14 ? '#d202' : context.p0.raw <= parseFloat(parsedData.rateDealIn[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.rateDealIn[context.p1DataIndex]) ? '#d201' : context.p0.raw <= parseFloat(parsedData.rateDealIn[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.rateDealIn[context.p1DataIndex]) ? '#0001' : '#0001'
+                                return context.p1.raw <= 14 ? '#d202' : context.p0.raw <= parseFloat(slicedData.rateDealIn[context.p0DataIndex]) && context.p1.raw <= parseFloat(slicedData.rateDealIn[context.p1DataIndex]) ? '#d201' : context.p0.raw <= parseFloat(slicedData.rateDealIn[context.p0DataIndex]) && context.p1.raw <= parseFloat(slicedData.rateDealIn[context.p1DataIndex]) ? '#0001' : '#0001'
                             },
                         },
                         fill: '-1',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateDealIn.0'|trans }} (last 25)',
-                        parsedDataName: 'rateDealIn25',
-                        data: parsedData.rateDealIn25,
+                        parsedDataName: 'rateDealInSmall',
+                        data: slicedData.rateDealInSmall,
                         borderWidth: 1,
                         borderColor: '#d20',
                         backgroundColor: '#d201',
                         segment: {
                             backgroundColor: context => {
-                                return context.p1.raw <= 14 ? '#d202' : context.p0.raw <= parseFloat(parsedData.rateDealIn[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.rateDealIn[context.p1DataIndex]) ? '#d201' : context.p0.raw <= parseFloat(parsedData.rateDealIn[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.rateDealIn[context.p1DataIndex]) ? '#0001' : '#0001'
+                                return context.p1.raw <= 14 ? '#d202' : context.p0.raw <= parseFloat(slicedData.rateDealIn[context.p0DataIndex]) && context.p1.raw <= parseFloat(slicedData.rateDealIn[context.p1DataIndex]) ? '#d201' : context.p0.raw <= parseFloat(slicedData.rateDealIn[context.p0DataIndex]) && context.p1.raw <= parseFloat(slicedData.rateDealIn[context.p1DataIndex]) ? '#0001' : '#0001'
                             },
                         },
                         fill: '-2',
@@ -211,14 +272,14 @@
                     {
                         label: 'Difference',
                         parsedDataName: 'diff',
-                        data: parsedData.diff,
+                        data: slicedData.diff,
                         borderColor: '#fc0',
                         backgroundColor: 'transparent',
                     },
                     {
                         label: 'Difference (last 100)',
-                        parsedDataName: 'diff100',
-                        data: parsedData.diff100,
+                        parsedDataName: 'diffBig',
+                        data: slicedData.diffBig,
                         borderWidth: 1,
                         borderColor: '#fc0',
                         backgroundColor: '#fc01',
@@ -227,15 +288,15 @@
                                 if (!context.p0.skip) {
                                     lastContext = context;
                                 }
-                                return context.p1.raw >= 10 ? '#fc02' : (!context.p0.skip && context.p0.raw || lastContext?.p0.raw) >= parseFloat(parsedData.diff[context.p0DataIndex]) && context.p1.raw >= parseFloat(parsedData.diff[context.p1DataIndex]) ? '#fc01' : (!context.p0.skip && context.p0.raw || lastContext?.p0.raw) <= parseFloat(parsedData.diff[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.diff[context.p1DataIndex]) ? '#0001' : '#0001'
+                                return context.p1.raw >= 10 ? '#fc02' : (!context.p0.skip && context.p0.raw || lastContext?.p0.raw) >= parseFloat(slicedData.diff[context.p0DataIndex]) && context.p1.raw >= parseFloat(slicedData.diff[context.p1DataIndex]) ? '#fc01' : (!context.p0.skip && context.p0.raw || lastContext?.p0.raw) <= parseFloat(slicedData.diff[context.p0DataIndex]) && context.p1.raw <= parseFloat(slicedData.diff[context.p1DataIndex]) ? '#0001' : '#0001'
                             },
                         },
                         fill: '-1',
                     },
                     {
                         label: 'Difference (last 25)',
-                        parsedDataName: 'diff25',
-                        data: parsedData.diff25,
+                        parsedDataName: 'diffSmall',
+                        data: slicedData.diffSmall,
                         borderWidth: 1,
                         borderColor: '#fc0',
                         backgroundColor: '#fc01',
@@ -244,7 +305,7 @@
                                 if (!context.p0.skip) {
                                     lastContext = context;
                                 }
-                                return context.p1.raw >= 10 ? '#fc02' : (!context.p0.skip && context.p0.raw || lastContext?.p0.raw) >= parseFloat(parsedData.diff[context.p0DataIndex]) && context.p1.raw >= parseFloat(parsedData.diff[context.p1DataIndex]) ? '#fc01' : (!context.p0.skip && context.p0.raw || lastContext?.p0.raw) <= parseFloat(parsedData.diff[context.p0DataIndex]) && context.p1.raw <= parseFloat(parsedData.diff[context.p1DataIndex]) ? '#0001' : '#0001'
+                                return context.p1.raw >= 10 ? '#fc02' : (!context.p0.skip && context.p0.raw || lastContext?.p0.raw) >= parseFloat(slicedData.diff[context.p0DataIndex]) && context.p1.raw >= parseFloat(slicedData.diff[context.p1DataIndex]) ? '#fc01' : (!context.p0.skip && context.p0.raw || lastContext?.p0.raw) <= parseFloat(slicedData.diff[context.p0DataIndex]) && context.p1.raw <= parseFloat(slicedData.diff[context.p1DataIndex]) ? '#0001' : '#0001'
                             },
                         },
                         fill: '-2',
@@ -290,13 +351,13 @@
         const rankChart = new Chart(document.getElementById('chartjs-rank'), {
             type: 'line',
             data: {
-                labels: parsedData.totalPlayed,
+                labels: slicedData.totalPlayed,
                 datasets: [
                     {
                         // type: 'scatter',
                         label: '{{ 'tl_patrickj_mjs.recentResult.0'|trans }}',
                         parsedDataName: 'recentResult',
-                        data: parsedData.recentResult,
+                        data: slicedData.recentResult,
                         yAxisID: 'rank',
                         showLine: false,
                         pointRadius: 2,
@@ -307,7 +368,7 @@
                     {
                         label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }}',
                         parsedDataName: 'avgRank',
-                        data: parsedData.avgRank,
+                        data: slicedData.avgRank,
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#000',
@@ -318,8 +379,8 @@
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 100)',
-                        parsedDataName: 'recentResult_avg100',
-                        data: parsedData.recentResult_avg100,
+                        parsedDataName: 'recentResult_avgBig',
+                        data: slicedData.recentResult_avgBig,
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#c8f',
@@ -330,8 +391,8 @@
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.avgRank.0'|trans }} (last 25)',
-                        parsedDataName: 'recentResult_avg25',
-                        data: parsedData.recentResult_avg25,
+                        parsedDataName: 'recentResult_avgSmall',
+                        data: slicedData.recentResult_avgSmall,
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#e88',
@@ -376,6 +437,8 @@
                         grid: {
                             drawOnChartArea: false,
                         },
+                        min: 1,
+                        max: 4,
                         reverse: true,
                         ticks: {
                             count: 4,
@@ -389,12 +452,12 @@
         const pointsChart = new Chart(document.getElementById('chartjs-points'), {
             type: 'bar',
             data: {
-                labels: parsedData.totalPlayed,
+                labels: slicedData.totalPlayed,
                 datasets: [
                     {
                         label: '{{ 'tl_patrickj_mjs.recentScoreFourth.0'|trans }}',
                         parsedDataName: 'recentScoreFourth',
-                        data: parsedData.recentScoreFourth,
+                        data: slicedData.recentScoreFourth,
                         borderWidth: 1,
                         borderColor: '#d20',
                         backgroundColor: '#d20',
@@ -402,7 +465,7 @@
                     {
                         label: '{{ 'tl_patrickj_mjs.recentScoreThird.0'|trans }}',
                         parsedDataName: 'recentScoreThird',
-                        data: parsedData.recentScoreThird,
+                        data: slicedData.recentScoreThird,
                         borderWidth: 1,
                         borderColor: '#f80',
                         backgroundColor: '#f80',
@@ -410,7 +473,7 @@
                     {
                         label: '{{ 'tl_patrickj_mjs.recentScoreSecond.0'|trans }}',
                         parsedDataName: 'recentScoreSecond',
-                        data: parsedData.recentScoreSecond,
+                        data: slicedData.recentScoreSecond,
                         borderWidth: 1,
                         borderColor: '#dd0',
                         backgroundColor: '#dd0',
@@ -418,7 +481,7 @@
                     {
                         label: '{{ 'tl_patrickj_mjs.recentScoreFirst.0'|trans }}',
                         parsedDataName: 'recentScoreFirst',
-                        data: parsedData.recentScoreFirst,
+                        data: slicedData.recentScoreFirst,
                         borderWidth: 1,
                         borderColor: '#2a0',
                         backgroundColor: '#2a0',
@@ -427,7 +490,7 @@
                         type: 'line',
                         label: '{{ 'tl_patrickj_mjs.recentScore.0'|trans }}',
                         parsedDataName: 'recentScore',
-                        data: parsedData.recentScore,
+                        data: slicedData.recentScore,
                         borderWidth: 1,
                         pointRadius: 2,
                         borderColor: '#000',
@@ -440,7 +503,7 @@
                         type: 'line',
                         label: '{{ 'tl_patrickj_mjs.avgScore.0'|trans }}',
                         parsedDataName: 'recentScore_avg',
-                        data: parsedData.recentScore_avg,
+                        data: slicedData.recentScore_avg,
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#000',
@@ -451,8 +514,8 @@
                     {
                         type: 'line',
                         label: '{{ 'tl_patrickj_mjs.avgScore.0'|trans }} (last 100)',
-                        parsedDataName: 'recentScore_avg100',
-                        data: parsedData.recentScore_avg100,
+                        parsedDataName: 'recentScore_avgBig',
+                        data: slicedData.recentScore_avgBig,
                         borderWidth: 1,
                         pointRadius: 0,
                         borderColor: '#fff',
@@ -496,12 +559,12 @@
         const placesChart = new Chart(document.getElementById('chartjs-places'), {
             type: 'line',
             data: {
-                labels: parsedData.totalPlayed,
+                labels: slicedData.totalPlayed,
                 datasets: [
                     {
                         label: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }}',
                         parsedDataName: 'rateFourth',
-                        data: parsedData.rateFourth,
+                        data: slicedData.rateFourth,
                         borderWidth: 1,
                         borderColor: '#d20',
                         backgroundColor: '#d20',
@@ -510,7 +573,7 @@
                     {
                         label: '{{ 'tl_patrickj_mjs.rateThird.0'|trans }}',
                         parsedDataName: 'rateThird',
-                        data: parsedData.rateThird,
+                        data: slicedData.rateThird,
                         borderWidth: 1,
                         borderColor: '#f80',
                         backgroundColor: '#f80',
@@ -518,7 +581,7 @@
                     {
                         label: '{{ 'tl_patrickj_mjs.rateSecond.0'|trans }}',
                         parsedDataName: 'rateSecond',
-                        data: parsedData.rateSecond,
+                        data: slicedData.rateSecond,
                         borderWidth: 1,
                         borderColor: '#dd0',
                         backgroundColor: '#dd0',
@@ -526,7 +589,7 @@
                     {
                         label: '{{ 'tl_patrickj_mjs.rateFirst.0'|trans }}',
                         parsedDataName: 'rateFirst',
-                        data: parsedData.rateFirst,
+                        data: slicedData.rateFirst,
                         borderWidth: 1,
                         borderColor: '#2a0',
                         backgroundColor: '#2a0',
@@ -534,7 +597,7 @@
                     {
                         label: '{{ 'tl_patrickj_mjs.rateNegative.0'|trans }}',
                         parsedDataName: 'rateNegative',
-                        data: parsedData.rateNegative,
+                        data: slicedData.rateNegative,
                         borderWidth: 1,
                         borderColor: '#0004',
                         backgroundColor: '#0004',
@@ -544,109 +607,109 @@
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }} (last 100)',
-                        parsedDataName: 'recentResult_rate100_4',
-                        data: parsedData.recentResult_rate100_4,
+                        parsedDataName: 'recentResult_rateBig_4',
+                        data: slicedData.recentResult_rateBig_4,
                         borderWidth: 1,
                         borderColor: '#000',
                         backgroundColor: '#b204',
-                        stack: 'last100',
+                        stack: 'lastBig',
                         order: -10,
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateThird.0'|trans }} (last 100)',
-                        parsedDataName: 'recentResult_rate100_3',
-                        data: parsedData.recentResult_rate100_3,
+                        parsedDataName: 'recentResult_rateBig_3',
+                        data: slicedData.recentResult_rateBig_3,
                         borderWidth: 1,
                         borderColor: '#000',
                         backgroundColor: '#f804',
-                        stack: 'last100',
+                        stack: 'lastBig',
                         order: -10,
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateSecond.0'|trans }} (last 100)',
-                        parsedDataName: 'recentResult_rate100_2',
-                        data: parsedData.recentResult_rate100_2,
+                        parsedDataName: 'recentResult_rateBig_2',
+                        data: slicedData.recentResult_rateBig_2,
                         borderWidth: 1,
                         borderColor: '#000',
                         backgroundColor: '#dd04',
-                        stack: 'last100',
+                        stack: 'lastBig',
                         order: -10,
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateFirst.0'|trans }} (last 100)',
-                        parsedDataName: 'recentResult_rate100_1',
-                        data: parsedData.recentResult_rate100_1,
+                        parsedDataName: 'recentResult_rateBig_1',
+                        data: slicedData.recentResult_rateBig_1,
                         borderWidth: 1,
                         borderColor: '#000',
                         backgroundColor: '#2804',
-                        stack: 'last100',
+                        stack: 'lastBig',
                         order: -10,
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateNegative.0'|trans }} (last 100)',
-                        parsedDataName: 'recentScore_rate100_negative',
-                        data: parsedData.recentScore_rate100_negative,
+                        parsedDataName: 'recentScore_rateBig_negative',
+                        data: slicedData.recentScore_rateBig_negative,
                         borderWidth: 1,
                         borderColor: '#000',
                         backgroundColor: '#0002',
                         fill: 'start',
-                        stack: 'last100unstacked',
+                        stack: 'lastBigunstacked',
                         order: -15,
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }} (last 25)',
-                        parsedDataName: 'recentResult_rate25_4',
-                        data: parsedData.recentResult_rate25_4,
+                        parsedDataName: 'recentResult_rateSmall_4',
+                        data: slicedData.recentResult_rateSmall_4,
                         borderWidth: 1,
                         borderColor: '#fff',
                         borderDash: [3, 2],
                         backgroundColor: 'transparent',
                         fill: 'start',
-                        stack: 'last25',
+                        stack: 'lastSmall',
                         order: -20,
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateThird.0'|trans }} (last 25)',
-                        parsedDataName: 'recentResult_rate25_3',
-                        data: parsedData.recentResult_rate25_3,
+                        parsedDataName: 'recentResult_rateSmall_3',
+                        data: slicedData.recentResult_rateSmall_3,
                         borderWidth: 1,
                         borderColor: '#fff',
                         borderDash: [3, 2],
                         backgroundColor: 'transparent',
-                        stack: 'last25',
+                        stack: 'lastSmall',
                         order: -20,
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateSecond.0'|trans }} (last 25)',
-                        parsedDataName: 'recentResult_rate25_2',
-                        data: parsedData.recentResult_rate25_2,
+                        parsedDataName: 'recentResult_rateSmall_2',
+                        data: slicedData.recentResult_rateSmall_2,
                         borderWidth: 1,
                         borderColor: '#fff',
                         borderDash: [3, 2],
                         backgroundColor: 'transparent',
-                        stack: 'last25',
+                        stack: 'lastSmall',
                         order: -20,
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateFirst.0'|trans }} (last 25)',
-                        parsedDataName: 'recentResult_rate25_1',
-                        data: parsedData.recentResult_rate25_1,
+                        parsedDataName: 'recentResult_rateSmall_1',
+                        data: slicedData.recentResult_rateSmall_1,
                         borderWidth: 1,
                         borderColor: '#fff',
                         borderDash: [3, 2],
                         backgroundColor: 'transparent',
-                        stack: 'last25',
+                        stack: 'lastSmall',
                         order: -20,
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateNegative.0'|trans }} (last 25)',
-                        parsedDataName: 'recentScore_rate25_negative',
-                        data: parsedData.recentScore_rate25_negative,
+                        parsedDataName: 'recentScore_rateSmall_negative',
+                        data: slicedData.recentScore_rateSmall_negative,
                         borderWidth: 1,
                         borderColor: '#fff',
                         borderDash: [3, 2],
                         backgroundColor: 'transparent',
-                        stack: 'last25unstacked',
+                        stack: 'lastSmall_unstacked',
                         order: -25,
                     },
                 ],
@@ -681,33 +744,33 @@
         const styleChart = new Chart(document.getElementById('chartjs-style'), {
             type: 'line',
             data: {
-                labels: parsedData.totalPlayed,
+                labels: slicedData.totalPlayed,
                 datasets: [
                     {
                         label: '{{ 'tl_patrickj_mjs.styleAtk.0'|trans }}',
                         parsedDataName: 'styleAtk',
-                        data: parsedData.styleAtk,
+                        data: slicedData.styleAtk,
                         borderWidth: 1,
                         backgroundColor: '#e63a89',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.styleDef.0'|trans }}',
                         parsedDataName: 'styleDef',
-                        data: parsedData.styleDef,
+                        data: slicedData.styleDef,
                         borderWidth: 1,
                         backgroundColor: '#71e39c',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.styleSpd.0'|trans }}',
                         parsedDataName: 'styleSpd',
-                        data: parsedData.styleSpd,
+                        data: slicedData.styleSpd,
                         borderWidth: 1,
                         backgroundColor: '#65ccd3',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.styleLuk.0'|trans }}',
                         parsedDataName: 'styleLuk',
-                        data: parsedData.styleLuk,
+                        data: slicedData.styleLuk,
                         borderWidth: 1,
                         backgroundColor: '#ae8152',
                     },
@@ -736,12 +799,12 @@
         const megaChart = new Chart(document.getElementById('chartjs-mega'), {
             type: 'line',
             data: {
-                labels: parsedData.totalPlayed,
+                labels: slicedData.totalPlayed,
                 datasets: [
                     {
                         label: '{{ 'tl_patrickj_mjs.avgScore.0'|trans }}',
                         parsedDataName: 'avgScore',
-                        data: parsedData.avgScore,
+                        data: slicedData.avgScore,
                         yAxisID: 'score',
                         borderColor: '#d608',
                         pointRadius: 2,
@@ -751,20 +814,20 @@
                     {
                         label: '{{ 'tl_patrickj_mjs.maxHonba.0'|trans }}',
                         parsedDataName: 'maxHonba',
-                        data: parsedData.maxHonba,
+                        data: slicedData.maxHonba,
                         stepped: true,
                         borderColor: '#da0',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.avgTurns.0'|trans }}',
                         parsedDataName: 'avgTurns',
-                        data: parsedData.avgTurns,
+                        data: slicedData.avgTurns,
                         borderColor: '#ed0',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.avgTurns.0'|trans }} (last 100)',
-                        parsedDataName: 'avgTurns100',
-                        data: parsedData.avgTurns100,
+                        parsedDataName: 'avgTurnsBig',
+                        data: slicedData.avgTurnsBig,
                         borderWidth: 1,
                         borderColor: '#ed0',
                         fill: '-1',
@@ -773,13 +836,13 @@
                     {
                         label: '{{ 'tl_patrickj_mjs.rateTsumo.0'|trans }}',
                         parsedDataName: 'rateTsumo',
-                        data: parsedData.rateTsumo,
+                        data: slicedData.rateTsumo,
                         borderColor: '#a4d',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateTsumo.0'|trans }} (last 100)',
-                        parsedDataName: 'rateTsumo100',
-                        data: parsedData.rateTsumo100,
+                        parsedDataName: 'rateTsumoBig',
+                        data: slicedData.rateTsumoBig,
                         borderWidth: 1,
                         borderColor: '#a4d',
                         fill: '-1',
@@ -788,13 +851,13 @@
                     {
                         label: '{{ 'tl_patrickj_mjs.rateCall.0'|trans }}',
                         parsedDataName: 'rateCall',
-                        data: parsedData.rateCall,
+                        data: slicedData.rateCall,
                         borderColor: '#0d2',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateCall.0'|trans }} (last 100)',
-                        parsedDataName: 'rateCall100',
-                        data: parsedData.rateCall100,
+                        parsedDataName: 'rateCallBig',
+                        data: slicedData.rateCallBig,
                         borderWidth: 1,
                         borderColor: '#0d2',
                         fill: '-1',
@@ -803,13 +866,13 @@
                     {
                         label: '{{ 'tl_patrickj_mjs.rateRiichi.0'|trans }}',
                         parsedDataName: 'rateRiichi',
-                        data: parsedData.rateRiichi,
+                        data: slicedData.rateRiichi,
                         borderColor: '#7bd',
                     },
                     {
                         label: '{{ 'tl_patrickj_mjs.rateRiichi.0'|trans }} (last 100)',
-                        parsedDataName: 'rateRiichi100',
-                        data: parsedData.rateRiichi100,
+                        parsedDataName: 'rateRiichiBig',
+                        data: slicedData.rateRiichiBig,
                         borderWidth: 1,
                         borderColor: '#7bd',
                         fill: '-1',
@@ -818,7 +881,7 @@
                     {
                         label: '{{ 'tl_patrickj_mjs.exp.0'|trans }}',
                         parsedDataName: 'exp',
-                        data: parsedData.exp,
+                        data: slicedData.exp,
                         yAxisID: 'exp',
                         borderColor: '#8888',
                         pointRadius: 2,
@@ -856,6 +919,7 @@
             },
         });
         charts.push(megaChart);
+    });
 
         document.querySelectorAll('[id^="anchor"]').forEach(el => el.addEventListener('click', e => window.location.hash = e.target.id.replace('anchor', 'chartjs')))
     </script>

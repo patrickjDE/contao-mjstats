@@ -17,6 +17,8 @@ class MahjongStats extends AbstractContentElementController
 {
     protected function getResponse(FragmentTemplate $template, ContentModel $model, Request $request): Response
     {
+        $GLOBALS['TL_JAVASCRIPT'][] = '/bundles/patrickjmjs/js/alpinejs@3.14.1.js|defer';
+
         Controller::loadLanguageFile('tl_patrickj_mjs');
 
 //        for ($i = 1; $i <= 195; $i++) {

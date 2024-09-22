@@ -10,6 +10,9 @@ class MjsModel extends Model implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
-        return $this->row();
+        $arrData = $this->row();
+        unset($arrData['tstamp']);
+
+        return $arrData;
     }
 }

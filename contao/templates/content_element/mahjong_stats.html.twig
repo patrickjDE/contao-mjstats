@@ -10,18 +10,30 @@
         <label for="recent2">Recent (big)</label>
         <input x-data x-model.number="$store.graphs.numRecentBig" type="number" step="10" min="10" name="recent2" id="offset">
     </div>
-    <h3 id="anchor">Current goals</h3>
-    <canvas id="chartjs"></canvas>
-    <h3 id="anchor-rank">Rank</h3>
-    <canvas id="chartjs-rank"></canvas>
-    <h3 id="anchor-points">Points</h3>
-    <canvas id="chartjs-points"></canvas>
-    <h3 id="anchor-places">Places</h3>
-    <canvas id="chartjs-places"></canvas>
-    <h3 id="anchor-style">"Style"</h3>
-    <canvas id="chartjs-style"></canvas>
-    <h3 id="anchor-mega">Other</h3>
-    <canvas id="chartjs-mega"></canvas>
+    <div id="section">
+        <h3 id="anchor">Current goals</h3>
+        <canvas id="chartjs"></canvas>
+    </div>
+    <div id="section-rank">
+        <h3 id="anchor-rank">Rank</h3>
+        <canvas id="chartjs-rank"></canvas>
+    </div>
+    <div id="section-points">
+        <h3 id="anchor-points">Points</h3>
+        <canvas id="chartjs-points"></canvas>
+    </div>
+    <div id="section-places">
+        <h3 id="anchor-places">Places</h3>
+        <canvas id="chartjs-places"></canvas>
+    </div>
+    <div id="section-style">
+        <h3 id="anchor-style">"Style"</h3>
+        <canvas id="chartjs-style"></canvas>
+    </div>
+    <div id="section-mega">
+        <h3 id="anchor-mega">Other</h3>
+        <canvas id="chartjs-mega"></canvas>
+    </div>
 {% endblock %}
 
 {% block style %}
@@ -36,12 +48,16 @@
             padding-bottom: 0.5rem;
             background: #fff;
         }
+        [id^="section"] {
+            scroll-snap-align: start;
+        }
     </style>
 {% endblock %}
 
 {% block script %}
     <script src="/bundles/patrickjmjs/js/chart.umd.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
+    document.documentElement.style.scrollSnapType = 'y mandatory';
     document.addEventListener('alpine:init', () => {
         // helper functions
         const averager = (baseArr, propName, length) => {
@@ -106,7 +122,16 @@
             jade: '#00b359',
             throne: '#bf2640',
         };
-        const roomColor = context => roomColors[parsedData.room[context.tick.value] || 'default'];
+        const roomColor = context => roomColors[slicedData.room[context.tick.value] || 'default'];
+
+        // chart scaling
+        const headerHeight = document.querySelector('.content-mahjong-stats .options').getBoundingClientRect().height;
+        const h3Height = document.querySelector('.content-mahjong-stats h3').getBoundingClientRect().height + parseFloat(window.getComputedStyle(document.querySelector('.content-mahjong-stats h3')).marginBottom.slice(0, -2));
+        document.documentElement.style.scrollPaddingTop = headerHeight + 'px';
+        const targetHeight = window.innerHeight - headerHeight - h3Height;
+        const targetWidth = document.querySelector('.content-mahjong-stats').getBoundingClientRect().width;
+        const targetBaseRatio = targetWidth / targetHeight;
+        console.log(targetBaseRatio)
 
         // statistical data
         const rawData = {{ statData|json_encode|raw }};
@@ -314,6 +339,7 @@
                 ],
             },
             options: {
+                aspectRatio: targetBaseRatio,
                 spanGaps: true,
                 pointRadius: 0,
                 borderWidth: 2,
@@ -405,7 +431,7 @@
                 ],
             },
             options: {
-                aspectRatio: 2.5,
+                aspectRatio: targetBaseRatio,
                 fill: {value: 2.5},
                 spanGaps: true,
                 scales: {
@@ -526,6 +552,7 @@
                 ],
             },
             options: {
+                aspectRatio: targetBaseRatio,
                 categoryPercentage: 1,
                 fill: true,
                 pointBorderColor: '#666',
@@ -715,7 +742,7 @@
                 ],
             },
             options: {
-                aspectRatio: 3,
+                aspectRatio: targetBaseRatio,
                 fill: '-1',
                 spanGaps: true,
                 pointRadius: 0,
@@ -777,7 +804,7 @@
                 ],
             },
             options: {
-                aspectRatio: 4,
+                aspectRatio: targetBaseRatio,
                 fill: true,
                 spanGaps: true,
                 pointRadius: 0,
@@ -891,6 +918,7 @@
                 ],
             },
             options: {
+                aspectRatio: targetBaseRatio,
                 backgroundColor: 'transparent',
                 pointRadius: 0,
                 borderWidth: 2,
@@ -921,6 +949,6 @@
         charts.push(megaChart);
     });
 
-        document.querySelectorAll('[id^="anchor"]').forEach(el => el.addEventListener('click', e => window.location.hash = e.target.id.replace('anchor', 'chartjs')))
+        document.querySelectorAll('[id^="anchor"]').forEach(el => el.addEventListener('click', e => window.location.hash = e.target.id.replace('anchor', 'section')))
     </script>
 {% endblock %}

@@ -2,6 +2,7 @@
 
 use Contao\DataContainer;
 use Contao\DC_Table;
+use Patrickj\Contao\MjsBundle\DataContainer\MjsCallbacks;
 
 $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
     'config' => [
@@ -134,7 +135,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
             'inputType' => 'text',
             'eval'      => [
                 'tl_class' => 'w25',
-                'rgxp' >= 'natural',
+                'rgxp' => 'natural',
                 'minval'   => 0,
             ],
             'sql'       => "int(10)",
@@ -143,7 +144,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
             'inputType' => 'text',
             'eval'      => [
                 'tl_class' => 'w25',
-                'rgxp' >= 'natural',
+                'rgxp' => 'natural',
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
@@ -153,7 +154,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
             'inputType' => 'text',
             'eval'      => [
                 'tl_class' => 'w25',
-                'rgxp' >= 'natural',
+                'rgxp' => 'natural',
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
@@ -163,7 +164,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
             'inputType' => 'text',
             'eval'      => [
                 'tl_class' => 'w25',
-                'rgxp' >= 'natural',
+                'rgxp' => 'natural',
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
@@ -173,7 +174,7 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
             'inputType' => 'text',
             'eval'      => [
                 'tl_class' => 'w25',
-                'rgxp' >= 'natural',
+                'rgxp' => 'natural',
                 'minval'   => 0,
                 'maxval'   => 100,
             ],
@@ -231,6 +232,9 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'tl_class' => 'w25',
                 'rgxp'     => 'digit',
             ],
+            'save_callback' => [
+                [MjsCallbacks::class, 'validateScoreSum'],
+            ],
             'sql'       => "varchar(6)",
         ],
         'rateFirst'    => [
@@ -270,6 +274,9 @@ $GLOBALS['TL_DCA']['tl_patrickj_mjs'] = [
                 'rgxp'     => 'digit',
                 'minval'   => 0,
                 'maxval'   => 100,
+            ],
+            'save_callback' => [
+                [MjsCallbacks::class, 'validateRateSum'],
             ],
             'sql'       => "varchar(6)",
         ],

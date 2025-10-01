@@ -42,4 +42,10 @@ $GLOBALS['TL_LANG']['tl_patrickj_mjs'] = [
 
     // Stats only
     'avgMatchScore' => ['Avg Match Score', 'Average match score.'],
+
+    // Error messages
+    'error_invalid_score_position' => 'Please select a valid position (1-4) and enter a score.',
+    'error_score_mismatch' => 'Your score does not match the score for your rank position.',
+    'error_score_sum' => 'The sum of all scores must equal 100,000 points.',
+    'error_rate_sum' => 'The sum of all place rates must be between 99.99 and 100.01.',
 ];

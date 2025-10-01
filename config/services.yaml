@@ -1,5 +1,7 @@
 services:
   _defaults:
     autoconfigure: true
+    autowire: true
 
   Patrickj\Contao\MjsBundle\Controller\ContentElement\MahjongStats: ~
+  Patrickj\Contao\MjsBundle\DataContainer\MjsCallbacks: ~

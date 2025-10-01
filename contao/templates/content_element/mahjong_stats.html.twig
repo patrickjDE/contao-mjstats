@@ -914,6 +914,40 @@
                         pointRadius: 2,
                         borderWidth: 1,
                         cubicInterpolationMode: 'monotone',
+                        segment: {
+                            borderColor: context => {
+                                // Extract rank from labels
+                                const rankRegex = /\((.*?)\)/;
+                                const p0Label = slicedData.totalPlayed[context.p0DataIndex];
+                                const p1Label = slicedData.totalPlayed[context.p1DataIndex];
+
+                                const p0Match = p0Label && p0Label.match(rankRegex);
+                                const p1Match = p1Label && p1Label.match(rankRegex);
+
+                                const p0Rank = p0Match ? p0Match[1] : null;
+                                const p1Rank = p1Match ? p1Match[1] : null;
+
+                                // If ranks are different, color the segment
+                                if (p0Rank && p1Rank && p0Rank !== p1Rank) {
+                                    // Get rank levels for comparison
+                                    const rankOrder = {
+                                        'novice1': 1, 'novice2': 2, 'novice3': 3,
+                                        'adept1': 4, 'adept2': 5, 'adept3': 6,
+                                        'expert1': 7, 'expert2': 8, 'expert3': 9,
+                                        'master1': 10, 'master2': 11, 'master3': 12,
+                                        'saint1': 13, 'saint2': 14, 'saint3': 15
+                                    };
+
+                                    const p0Level = rankOrder[p0Rank] || 0;
+                                    const p1Level = rankOrder[p1Rank] || 0;
+
+                                    // Green for rank up, red for rank down
+                                    return p1Level > p0Level ? '#2a08' : '#d208';
+                                }
+
+                                return '#8888';
+                            }
+                        },
                     },
                 ],
             },

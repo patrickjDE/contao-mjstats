@@ -17,6 +17,26 @@
     <div id="section-rank">
         <h3 id="anchor-rank">Rank</h3>
         <canvas id="chartjs-rank"></canvas>
+        <div id="streaks-no-first" style="margin-top: 1rem;">
+            <h4>{{ 'tl_patrickj_mjs.streakNoFirst.0'|trans }}</h4>
+            <div>
+                <strong>{{ 'tl_patrickj_mjs.streakLongest.0'|trans }}:</strong>
+                <span id="streakLongestValue"></span>
+            </div>
+            <ul id="streakLongestRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+        </div>
+        <div id="streaks-no-fourth" style="margin-top: 1rem;">
+            <h4>{{ 'tl_patrickj_mjs.streakNoFourth.0'|trans }}</h4>
+            <div>
+                <strong>{{ 'tl_patrickj_mjs.streakLongest.0'|trans }}:</strong>
+                <span id="streakNoFourthValue"></span>
+            </div>
+            <ul id="streakNoFourthRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+        </div>
+        <div id="streaks-consecutive" style="margin-top: 1rem;">
+            <h4>{{ 'tl_patrickj_mjs.streakConsecutive.0'|trans }}</h4>
+            <ul id="streakConsecutiveList" style="margin: .25rem 0 0 .75rem;"></ul>
+        </div>
     </div>
     <div id="section-points">
         <h3 id="anchor-points">Points</h3>
@@ -99,6 +119,45 @@
                 }
                 return Math.round(count / (length || (i + 1)) * 10000) / 100;
             })
+        }
+        const computeStreaks = (arr, predicate) => {
+            let max = 0;
+            let cur = 0;
+            let startIdx = null;
+            const segments = [];
+            for (let i = 0; i < arr.length; i++) {
+                const ok = predicate(arr[i]);
+                if (ok) {
+                    if (cur === 0) startIdx = i;
+                    cur++;
+                } else {
+                    if (cur > 0) {
+                        segments.push({ len: cur, start: startIdx, end: i - 1 });
+                        if (cur > max) max = cur;
+                        cur = 0;
+                        startIdx = null;
+                    }
+                }
+            }
+            if (cur > 0) {
+                segments.push({ len: cur, start: startIdx, end: arr.length - 1 });
+                if (cur > max) max = cur;
+            }
+            const longest = segments.filter(s => s.len === max);
+            return { max, segments, longest };
+        }
+        const topStreakGroups = (segments, topN = 3) => {
+            // Group segments by their length, then take the top N unique lengths (desc)
+            const byLen = segments.reduce((acc, s) => {
+                (acc[s.len] ||= []).push(s);
+                return acc;
+            }, {});
+            const lengths = Object.keys(byLen).map(Number).sort((a, b) => b - a).slice(0, topN);
+            // Within each length, sort by earliest occurrence (start asc)
+            return lengths.map(len => ({
+                len,
+                ranges: byLen[len].sort((a, b) => a.start - b.start)
+            }));
         }
         const recent = (baseArr, propName, length) => {
             let count = 0;
@@ -981,6 +1040,108 @@
             },
         });
         charts.push(megaChart);
+
+        // Render longest no-1st streaks info (overall)
+        try {
+            const streaks = computeStreaks(rawData, row => parseInt(row.recentResult) !== 1);
+            const longestValueEl = document.getElementById('streakLongestValue');
+            const listEl = document.getElementById('streakLongestRanges');
+            if (longestValueEl && listEl) {
+                longestValueEl.textContent = streaks.max + ' ' + '{{ 'tl_patrickj_mjs.games.0'|trans }}';
+                listEl.innerHTML = '';
+                // Show top 3 unique lengths (including the longest) with their ranges
+                topStreakGroups(streaks.segments, 3).forEach(group => {
+                    const li = document.createElement('li');
+                    const title = document.createElement('div');
+                    title.innerHTML = `<strong>${group.len} {{ 'tl_patrickj_mjs.games.0'|trans }}</strong>`;
+                    li.appendChild(title);
+                    const sub = document.createElement('ul');
+                    sub.style.margin = '.25rem 0 0 .75rem';
+                    group.ranges.forEach(s => {
+                        const r = document.createElement('li');
+                        const start = rawData[s.start]?.totalPlayed;
+                        const end = rawData[s.end]?.totalPlayed;
+                        if (start !== undefined && end !== undefined) {
+                            r.textContent = `${start} - ${end}`;
+                            sub.appendChild(r);
+                        }
+                    });
+                    li.appendChild(sub);
+                    listEl.appendChild(li);
+                });
+            }
+        } catch (e) {
+            console.warn('Failed to compute no-1st streaks', e);
+        }
+
+        // Render longest no-4th streaks info (overall)
+        try {
+            const streaks = computeStreaks(rawData, row => parseInt(row.recentResult) !== 4);
+            const valueEl = document.getElementById('streakNoFourthValue');
+            const listEl = document.getElementById('streakNoFourthRanges');
+            if (valueEl && listEl) {
+                valueEl.textContent = streaks.max + ' ' + '{{ 'tl_patrickj_mjs.games.0'|trans }}';
+                listEl.innerHTML = '';
+                // Show top 3 unique lengths (including the longest) with their ranges
+                topStreakGroups(streaks.segments, 5).forEach(group => {
+                    const li = document.createElement('li');
+                    const title = document.createElement('div');
+                    title.innerHTML = `<strong>${group.len} {{ 'tl_patrickj_mjs.games.0'|trans }}</strong>`;
+                    li.appendChild(title);
+                    const sub = document.createElement('ul');
+                    sub.style.margin = '.25rem 0 0 .75rem';
+                    group.ranges.forEach(s => {
+                        const r = document.createElement('li');
+                        const start = rawData[s.start]?.totalPlayed;
+                        const end = rawData[s.end]?.totalPlayed;
+                        if (start !== undefined && end !== undefined) {
+                            r.textContent = `${start} - ${end}`;
+                            sub.appendChild(r);
+                        }
+                    });
+                    li.appendChild(sub);
+                    listEl.appendChild(li);
+                });
+            }
+        } catch (e) {
+            console.warn('Failed to compute no-4th streaks', e);
+        }
+
+        // Render consecutive place streaks (1st–4th)
+        try {
+            const container = document.getElementById('streakConsecutiveList');
+            if (container) {
+                container.innerHTML = '';
+                const labels = {
+                    1: '{{ 'tl_patrickj_mjs.rateFirst.0'|trans }}',
+                    2: '{{ 'tl_patrickj_mjs.rateSecond.0'|trans }}',
+                    3: '{{ 'tl_patrickj_mjs.rateThird.0'|trans }}',
+                    4: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }}',
+                };
+                for (let p = 1; p <= 4; p++) {
+                    const streaks = computeStreaks(rawData, row => parseInt(row.recentResult) === p);
+                    const li = document.createElement('li');
+                    const title = document.createElement('div');
+                    title.innerHTML = `<strong>${labels[p]}:</strong> ${streaks.max} {{ 'tl_patrickj_mjs.games.0'|trans }}`;
+                    li.appendChild(title);
+                    const sub = document.createElement('ul');
+                    sub.style.margin = '.25rem 0 0 .75rem';
+                    streaks.longest.forEach(s => {
+                        const r = document.createElement('li');
+                        const start = rawData[s.start]?.totalPlayed;
+                        const end = rawData[s.end]?.totalPlayed;
+                        if (start !== undefined && end !== undefined) {
+                            r.textContent = `${start} - ${end}`;
+                            sub.appendChild(r);
+                        }
+                    });
+                    li.appendChild(sub);
+                    container.appendChild(li);
+                }
+            }
+        } catch (e) {
+            console.warn('Failed to compute consecutive place streaks', e);
+        }
     });
 
         document.querySelectorAll('[id^="anchor"]').forEach(el => el.addEventListener('click', e => window.location.hash = e.target.id.replace('anchor', 'section')))

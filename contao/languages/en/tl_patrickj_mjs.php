@@ -43,6 +43,13 @@ $GLOBALS['TL_LANG']['tl_patrickj_mjs'] = [
     // Stats only
     'avgMatchScore' => ['Avg Match Score', 'Average match score.'],
 
+    // Custom stats
+    'streakNoFirst' => ['Winless Streaks', 'Consecutive matches without placing 1st.'],
+    'streakLongest' => ['Longest', 'The longest streaks without placing 1st.'],
+    'games' => ['games'],
+    'streakNoFourth' => ['Losing Streaks', 'Consecutive matches without placing 4th.'],
+    'streakConsecutive' => ['Consecutive Place Streaks', 'Longest consecutive streaks for each finishing place (1st–4th).'],
+
     // Error messages
     'error_invalid_score_position' => 'Please select a valid position (1-4) and enter a score.',
     'error_score_mismatch' => 'Your score does not match the score for your rank position.',

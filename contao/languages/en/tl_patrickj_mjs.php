@@ -50,6 +50,30 @@ $GLOBALS['TL_LANG']['tl_patrickj_mjs'] = [
     'streakNoFourth' => ['Losing Streaks', 'Consecutive matches without placing 4th.'],
     'streakConsecutive' => ['Consecutive Place Streaks', 'Longest consecutive streaks for each finishing place (1st–4th).'],
 
+    // High scores
+    'highScores' => ['High Scores', 'Highest match scores.'],
+    'highScoreEver' => ['Ever', 'Highest score ever recorded.'],
+    'highScoreRecentSmall' => ['Recent (small)', 'Highest score within the small recent window.'],
+    'highScoreRecentBig' => ['Recent (big)', 'Highest score within the big recent window.'],
+
+    // High average scores
+    'highAvgScores' => ['High Average Scores', 'Highest average match scores.'],
+    'highAvgScoreEver' => ['Ever', 'Highest average score ever recorded.'],
+    'highAvgScoreRecentSmall' => ['Recent (small)', 'Highest average score within the small recent window.'],
+    'highAvgScoreRecentBig' => ['Recent (big)', 'Highest average score within the big recent window.'],
+
+    // Low scores
+    'lowScores' => ['Low Scores', 'Lowest match scores.'],
+    'lowScoreEver' => ['Ever', 'Lowest score ever recorded.'],
+    'lowScoreRecentSmall' => ['Recent (small)', 'Lowest score within the small recent window.'],
+    'lowScoreRecentBig' => ['Recent (big)', 'Lowest score within the big recent window.'],
+
+    // Low average scores
+    'lowAvgScores' => ['Low Average Scores', 'Lowest average match scores.'],
+    'lowAvgScoreEver' => ['Ever', 'Lowest average score ever recorded.'],
+    'lowAvgScoreRecentSmall' => ['Recent (small)', 'Lowest average score within the small recent window.'],
+    'lowAvgScoreRecentBig' => ['Recent (big)', 'Lowest average score within the big recent window.'],
+
     // Error messages
     'error_invalid_score_position' => 'Please select a valid position (1-4) and enter a score.',
     'error_score_mismatch' => 'Your score does not match the score for your rank position.',

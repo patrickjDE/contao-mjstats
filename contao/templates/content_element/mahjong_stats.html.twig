@@ -41,6 +41,116 @@
     <div id="section-points">
         <h3 id="anchor-points">Points</h3>
         <canvas id="chartjs-points"></canvas>
+        <div id="high-scores" style="margin-top: 1rem;">
+            <h4>{{ 'tl_patrickj_mjs.highScores.0'|trans }}</h4>
+            <ul style="margin: .25rem 0 0 .75rem;">
+                <li>
+                    <div>
+                        <strong>{{ 'tl_patrickj_mjs.highScoreEver.0'|trans }}:</strong>
+                        <span id="highScoreEverValue"></span>
+                    </div>
+                    <ul id="highScoreEverRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul id="highScoreEverTop" style="margin: .25rem 0 0 .75rem;"></ul>
+                </li>
+                <li>
+                    <div>
+                        <strong>{{ 'tl_patrickj_mjs.highScoreRecentSmall.0'|trans }}:</strong>
+                        <span id="highScoreRecentSmallValue"></span>
+                    </div>
+                    <ul id="highScoreRecentSmallRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul id="highScoreRecentSmallTop" style="margin: .25rem 0 0 .75rem;"></ul>
+                </li>
+                <li>
+                    <div>
+                        <strong>{{ 'tl_patrickj_mjs.highScoreRecentBig.0'|trans }}:</strong>
+                        <span id="highScoreRecentBigValue"></span>
+                    </div>
+                    <ul id="highScoreRecentBigRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul id="highScoreRecentBigTop" style="margin: .25rem 0 0 .75rem;"></ul>
+                </li>
+            </ul>
+        </div>
+        <div id="low-scores" style="margin-top: 1rem;">
+            <h4>{{ 'tl_patrickj_mjs.lowScores.0'|trans }}</h4>
+            <ul style="margin: .25rem 0 0 .75rem;">
+                <li>
+                    <div>
+                        <strong>{{ 'tl_patrickj_mjs.lowScoreEver.0'|trans }}:</strong>
+                        <span id="lowScoreEverValue"></span>
+                    </div>
+                    <ul id="lowScoreEverRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul id="lowScoreEverTop" style="margin: .25rem 0 0 .75rem;"></ul>
+                </li>
+                <li>
+                    <div>
+                        <strong>{{ 'tl_patrickj_mjs.lowScoreRecentSmall.0'|trans }}:</strong>
+                        <span id="lowScoreRecentSmallValue"></span>
+                    </div>
+                    <ul id="lowScoreRecentSmallRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul id="lowScoreRecentSmallTop" style="margin: .25rem 0 0 .75rem;"></ul>
+                </li>
+                <li>
+                    <div>
+                        <strong>{{ 'tl_patrickj_mjs.lowScoreRecentBig.0'|trans }}:</strong>
+                        <span id="lowScoreRecentBigValue"></span>
+                    </div>
+                    <ul id="lowScoreRecentBigRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul id="lowScoreRecentBigTop" style="margin: .25rem 0 0 .75rem;"></ul>
+                </li>
+            </ul>
+        </div>
+        <div id="high-avg-scores" style="margin-top: 1rem;">
+            <h4>{{ 'tl_patrickj_mjs.highAvgScores.0'|trans }}</h4>
+            <ul style="margin: .25rem 0 0 .75rem;">
+                <li>
+                    <div>
+                        <strong>{{ 'tl_patrickj_mjs.highAvgScoreEver.0'|trans }}:</strong>
+                        <span id="highAvgScoreEverValue"></span>
+                    </div>
+                    <ul id="highAvgScoreEverRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                </li>
+                <li>
+                    <div>
+                        <strong>{{ 'tl_patrickj_mjs.highAvgScoreRecentSmall.0'|trans }}:</strong>
+                        <span id="highAvgScoreRecentSmallValue"></span>
+                    </div>
+                    <ul id="highAvgScoreRecentSmallRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                </li>
+                <li>
+                    <div>
+                        <strong>{{ 'tl_patrickj_mjs.highAvgScoreRecentBig.0'|trans }}:</strong>
+                        <span id="highAvgScoreRecentBigValue"></span>
+                    </div>
+                    <ul id="highAvgScoreRecentBigRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                </li>
+            </ul>
+        </div>
+        <div id="low-avg-scores" style="margin-top: 1rem;">
+            <h4>{{ 'tl_patrickj_mjs.lowAvgScores.0'|trans }}</h4>
+            <ul style="margin: .25rem 0 0 .75rem;">
+                <li>
+                    <div>
+                        <strong>{{ 'tl_patrickj_mjs.lowAvgScoreEver.0'|trans }}:</strong>
+                        <span id="lowAvgScoreEverValue"></span>
+                    </div>
+                    <ul id="lowAvgScoreEverRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                </li>
+                <li>
+                    <div>
+                        <strong>{{ 'tl_patrickj_mjs.lowAvgScoreRecentSmall.0'|trans }}:</strong>
+                        <span id="lowAvgScoreRecentSmallValue"></span>
+                    </div>
+                    <ul id="lowAvgScoreRecentSmallRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                </li>
+                <li>
+                    <div>
+                        <strong>{{ 'tl_patrickj_mjs.lowAvgScoreRecentBig.0'|trans }}:</strong>
+                        <span id="lowAvgScoreRecentBigValue"></span>
+                    </div>
+                    <ul id="lowAvgScoreRecentBigRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                </li>
+            </ul>
+        </div>
     </div>
     <div id="section-places">
         <h3 id="anchor-places">Places</h3>
@@ -159,6 +269,436 @@
                 ranges: byLen[len].sort((a, b) => a.start - b.start)
             }));
         }
+        const computeMaxInRange = (arr, accessor, startIdx = 0, endIdx = arr.length - 1) => {
+            if (!arr || !arr.length) return { max: null, indices: [] };
+            startIdx = Math.max(0, startIdx);
+            endIdx = Math.min(arr.length - 1, endIdx);
+            if (endIdx < startIdx) return { max: null, indices: [] };
+            let max = null;
+            const indices = [];
+            for (let i = startIdx; i <= endIdx; i++) {
+                const v = accessor(arr[i]);
+                if (v === null || v === undefined || isNaN(v)) continue;
+                if (max === null || v > max) {
+                    max = v;
+                    indices.length = 0;
+                    indices.push(i);
+                } else if (v === max) {
+                    indices.push(i);
+                }
+            }
+            return { max, indices };
+        }
+        // Compute max and indices for a simple numeric series (numbers or nulls)
+        const computeMaxInSeries = (series, startIdx = 0, endIdx = (series?.length || 0) - 1) => {
+            if (!Array.isArray(series) || !series.length) return { max: null, indices: [] };
+            startIdx = Math.max(0, startIdx);
+            endIdx = Math.min(series.length - 1, endIdx);
+            if (endIdx < startIdx) return { max: null, indices: [] };
+            let max = null;
+            const indices = [];
+            for (let i = startIdx; i <= endIdx; i++) {
+                const v = series[i];
+                if (v === null || v === undefined || isNaN(v)) continue;
+                if (max === null || v > max) {
+                    max = v;
+                    indices.length = 0;
+                    indices.push(i);
+                } else if (v === max) {
+                    indices.push(i);
+                }
+            }
+            return { max, indices };
+        }
+        const computeMinInRange = (arr, accessor, startIdx = 0, endIdx = arr.length - 1) => {
+            if (!arr || !arr.length) return { min: null, indices: [] };
+            startIdx = Math.max(0, startIdx);
+            endIdx = Math.min(arr.length - 1, endIdx);
+            if (endIdx < startIdx) return { min: null, indices: [] };
+            let min = null;
+            const indices = [];
+            for (let i = startIdx; i <= endIdx; i++) {
+                const v = accessor(arr[i]);
+                if (v === null || v === undefined || isNaN(v)) continue;
+                if (min === null || v < min) {
+                    min = v;
+                    indices.length = 0;
+                    indices.push(i);
+                } else if (v === min) {
+                    indices.push(i);
+                }
+            }
+            return { min, indices };
+        }
+        const computeMinInSeries = (series, startIdx = 0, endIdx = (series?.length || 0) - 1) => {
+            if (!Array.isArray(series) || !series.length) return { min: null, indices: [] };
+            startIdx = Math.max(0, startIdx);
+            endIdx = Math.min(series.length - 1, endIdx);
+            if (endIdx < startIdx) return { min: null, indices: [] };
+            let min = null;
+            const indices = [];
+            for (let i = startIdx; i <= endIdx; i++) {
+                const v = series[i];
+                if (v === null || v === undefined || isNaN(v)) continue;
+                if (min === null || v < min) {
+                    min = v;
+                    indices.length = 0;
+                    indices.push(i);
+                } else if (v === min) {
+                    indices.push(i);
+                }
+            }
+            return { min, indices };
+        }
+        const topValueGroupsInRange = (arr, accessor, startIdx, endIdx, order = 'desc', topN = 3) => {
+            if (!arr || !arr.length) return [];
+            startIdx = Math.max(0, startIdx);
+            endIdx = Math.min(arr.length - 1, endIdx);
+            const map = new Map(); // value -> indices[]
+            for (let i = startIdx; i <= endIdx; i++) {
+                const v = accessor(arr[i]);
+                if (v === null || v === undefined || isNaN(v)) continue;
+                const key = v;
+                if (!map.has(key)) map.set(key, []);
+                map.get(key).push(i);
+            }
+            const values = Array.from(map.keys()).sort((a, b) => order === 'asc' ? a - b : b - a).slice(0, topN);
+            return values.map(value => ({ value, indices: map.get(value).sort((a, b) => a - b) }));
+        }
+        const renderHighScores = () => {
+            try {
+                const valEver = document.getElementById('highScoreEverValue');
+                const listEver = document.getElementById('highScoreEverRanges');
+                const listEverTop = document.getElementById('highScoreEverTop');
+                const valSmall = document.getElementById('highScoreRecentSmallValue');
+                const listSmall = document.getElementById('highScoreRecentSmallRanges');
+                const listSmallTop = document.getElementById('highScoreRecentSmallTop');
+                const valBig = document.getElementById('highScoreRecentBigValue');
+                const listBig = document.getElementById('highScoreRecentBigRanges');
+                const listBigTop = document.getElementById('highScoreRecentBigTop');
+                if (!(valEver && listEver && valSmall && listSmall && valBig && listBig)) return;
+
+                const accessor = row => parseInt(row.recentScore);
+                const formatNum = n => typeof n === 'number' ? n.toLocaleString() : '-';
+
+                // Ever
+                const ever = computeMaxInRange(rawData, accessor, 0, rawData.length - 1);
+                valEver.textContent = formatNum(ever.max);
+                listEver.innerHTML = '';
+                ever.indices.forEach(i => {
+                    const li = document.createElement('li');
+                    const tp = rawData[i]?.totalPlayed;
+                    if (tp !== undefined) li.textContent = `${tp}`;
+                    listEver.appendChild(li);
+                });
+                if (listEverTop) {
+                    listEverTop.innerHTML = '';
+                    const groups = topValueGroupsInRange(rawData, accessor, 0, rawData.length - 1, 'desc', 3);
+                    groups.forEach(g => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<strong>${formatNum(g.value)}</strong>`;
+                        const ul = document.createElement('ul');
+                        ul.style.margin = '.25rem 0 0 .75rem';
+                        g.indices.forEach(i => {
+                            const li2 = document.createElement('li');
+                            const tp = rawData[i]?.totalPlayed;
+                            if (tp !== undefined) li2.textContent = `${tp}`;
+                            ul.appendChild(li2);
+                        });
+                        li.appendChild(ul);
+                        listEverTop.appendChild(li);
+                    });
+                }
+
+                // Recent windows
+                const smallN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentSmall || 0));
+                const bigN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentBig || 0));
+                const startSmall = Math.max(0, rawData.length - smallN);
+                const startBig = Math.max(0, rawData.length - bigN);
+
+                const recentSmall = computeMaxInRange(rawData, accessor, startSmall, rawData.length - 1);
+                valSmall.textContent = formatNum(recentSmall.max);
+                listSmall.innerHTML = '';
+                recentSmall.indices.forEach(i => {
+                    const li = document.createElement('li');
+                    const tp = rawData[i]?.totalPlayed;
+                    if (tp !== undefined) li.textContent = `${tp}`;
+                    listSmall.appendChild(li);
+                });
+                if (listSmallTop) {
+                    listSmallTop.innerHTML = '';
+                    const groups = topValueGroupsInRange(rawData, accessor, startSmall, rawData.length - 1, 'desc', 3);
+                    groups.forEach(g => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<strong>${formatNum(g.value)}</strong>`;
+                        const ul = document.createElement('ul');
+                        ul.style.margin = '.25rem 0 0 .75rem';
+                        g.indices.forEach(i => {
+                            const li2 = document.createElement('li');
+                            const tp = rawData[i]?.totalPlayed;
+                            if (tp !== undefined) li2.textContent = `${tp}`;
+                            ul.appendChild(li2);
+                        });
+                        li.appendChild(ul);
+                        listSmallTop.appendChild(li);
+                    });
+                }
+
+                const recentBig = computeMaxInRange(rawData, accessor, startBig, rawData.length - 1);
+                valBig.textContent = formatNum(recentBig.max);
+                listBig.innerHTML = '';
+                recentBig.indices.forEach(i => {
+                    const li = document.createElement('li');
+                    const tp = rawData[i]?.totalPlayed;
+                    if (tp !== undefined) li.textContent = `${tp}`;
+                    listBig.appendChild(li);
+                });
+                if (listBigTop) {
+                    listBigTop.innerHTML = '';
+                    const groups = topValueGroupsInRange(rawData, accessor, startBig, rawData.length - 1, 'desc', 3);
+                    groups.forEach(g => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<strong>${formatNum(g.value)}</strong>`;
+                        const ul = document.createElement('ul');
+                        ul.style.margin = '.25rem 0 0 .75rem';
+                        g.indices.forEach(i => {
+                            const li2 = document.createElement('li');
+                            const tp = rawData[i]?.totalPlayed;
+                            if (tp !== undefined) li2.textContent = `${tp}`;
+                            ul.appendChild(li2);
+                        });
+                        li.appendChild(ul);
+                        listBigTop.appendChild(li);
+                    });
+                }
+            } catch (e) {
+                console.warn('Failed to render high scores', e);
+            }
+        }
+        const renderLowScores = () => {
+            try {
+                const valEver = document.getElementById('lowScoreEverValue');
+                const listEver = document.getElementById('lowScoreEverRanges');
+                const listEverTop = document.getElementById('lowScoreEverTop');
+                const valSmall = document.getElementById('lowScoreRecentSmallValue');
+                const listSmall = document.getElementById('lowScoreRecentSmallRanges');
+                const listSmallTop = document.getElementById('lowScoreRecentSmallTop');
+                const valBig = document.getElementById('lowScoreRecentBigValue');
+                const listBig = document.getElementById('lowScoreRecentBigRanges');
+                const listBigTop = document.getElementById('lowScoreRecentBigTop');
+                if (!(valEver && listEver && valSmall && listSmall && valBig && listBig)) return;
+
+                const accessor = row => parseInt(row.recentScore);
+                const formatNum = n => typeof n === 'number' ? n.toLocaleString() : '-';
+
+                // Ever
+                const ever = computeMinInRange(rawData, accessor, 0, rawData.length - 1);
+                valEver.textContent = formatNum(ever.min);
+                listEver.innerHTML = '';
+                ever.indices.forEach(i => {
+                    const li = document.createElement('li');
+                    const tp = rawData[i]?.totalPlayed;
+                    if (tp !== undefined) li.textContent = `${tp}`;
+                    listEver.appendChild(li);
+                });
+                if (listEverTop) {
+                    listEverTop.innerHTML = '';
+                    const groups = topValueGroupsInRange(rawData, accessor, 0, rawData.length - 1, 'asc', 3);
+                    groups.forEach(g => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<strong>${formatNum(g.value)}</strong>`;
+                        const ul = document.createElement('ul');
+                        ul.style.margin = '.25rem 0 0 .75rem';
+                        g.indices.forEach(i => {
+                            const li2 = document.createElement('li');
+                            const tp = rawData[i]?.totalPlayed;
+                            if (tp !== undefined) li2.textContent = `${tp}`;
+                            ul.appendChild(li2);
+                        });
+                        li.appendChild(ul);
+                        listEverTop.appendChild(li);
+                    });
+                }
+
+                // Recent windows
+                const smallN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentSmall || 0));
+                const bigN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentBig || 0));
+                const startSmall = Math.max(0, rawData.length - smallN);
+                const startBig = Math.max(0, rawData.length - bigN);
+
+                const recentSmall = computeMinInRange(rawData, accessor, startSmall, rawData.length - 1);
+                valSmall.textContent = formatNum(recentSmall.min);
+                listSmall.innerHTML = '';
+                recentSmall.indices.forEach(i => {
+                    const li = document.createElement('li');
+                    const tp = rawData[i]?.totalPlayed;
+                    if (tp !== undefined) li.textContent = `${tp}`;
+                    listSmall.appendChild(li);
+                });
+                if (listSmallTop) {
+                    listSmallTop.innerHTML = '';
+                    const groups = topValueGroupsInRange(rawData, accessor, startSmall, rawData.length - 1, 'asc', 3);
+                    groups.forEach(g => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<strong>${formatNum(g.value)}</strong>`;
+                        const ul = document.createElement('ul');
+                        ul.style.margin = '.25rem 0 0 .75rem';
+                        g.indices.forEach(i => {
+                            const li2 = document.createElement('li');
+                            const tp = rawData[i]?.totalPlayed;
+                            if (tp !== undefined) li2.textContent = `${tp}`;
+                            ul.appendChild(li2);
+                        });
+                        li.appendChild(ul);
+                        listSmallTop.appendChild(li);
+                    });
+                }
+
+                const recentBig = computeMinInRange(rawData, accessor, startBig, rawData.length - 1);
+                valBig.textContent = formatNum(recentBig.min);
+                listBig.innerHTML = '';
+                recentBig.indices.forEach(i => {
+                    const li = document.createElement('li');
+                    const tp = rawData[i]?.totalPlayed;
+                    if (tp !== undefined) li.textContent = `${tp}`;
+                    listBig.appendChild(li);
+                });
+                if (listBigTop) {
+                    listBigTop.innerHTML = '';
+                    const groups = topValueGroupsInRange(rawData, accessor, startBig, rawData.length - 1, 'asc', 3);
+                    groups.forEach(g => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<strong>${formatNum(g.value)}</strong>`;
+                        const ul = document.createElement('ul');
+                        ul.style.margin = '.25rem 0 0 .75rem';
+                        g.indices.forEach(i => {
+                            const li2 = document.createElement('li');
+                            const tp = rawData[i]?.totalPlayed;
+                            if (tp !== undefined) li2.textContent = `${tp}`;
+                            ul.appendChild(li2);
+                        });
+                        li.appendChild(ul);
+                        listBigTop.appendChild(li);
+                    });
+                }
+            } catch (e) {
+                console.warn('Failed to render low scores', e);
+            }
+        }
+        const renderHighAvgScores = () => {
+            try {
+                const valEver = document.getElementById('highAvgScoreEverValue');
+                const listEver = document.getElementById('highAvgScoreEverRanges');
+                const valSmall = document.getElementById('highAvgScoreRecentSmallValue');
+                const listSmall = document.getElementById('highAvgScoreRecentSmallRanges');
+                const valBig = document.getElementById('highAvgScoreRecentBigValue');
+                const listBig = document.getElementById('highAvgScoreRecentBigRanges');
+                if (!(valEver && listEver && valSmall && listSmall && valBig && listBig)) return;
+                const formatNum = n => typeof n === 'number' ? n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-';
+
+                // Series sources: use parsedData rolling averages
+                const seriesEver = parsedData['recentScore_avg']; // cumulative average
+                const seriesSmall = parsedData['recentScore_avgSmall']; // rolling avg with window = numRecentSmall
+                const seriesBig = parsedData['recentScore_avgBig']; // rolling avg with window = numRecentBig
+
+                // Determine how many initial entries to ignore: min(numRecentSmall, numRecentBig)
+                const smallN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentSmall || 0));
+                const bigN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentBig || 0));
+                const skipN = Math.max(0, Math.min(smallN, bigN));
+
+                // Ever (search entire series after skipping first N entries)
+                const ever = computeMaxInSeries(seriesEver, skipN, (seriesEver?.length || 1) - 1);
+                valEver.textContent = formatNum(ever.max);
+                listEver.innerHTML = '';
+                ever.indices.forEach(i => {
+                    const li = document.createElement('li');
+                    const tp = rawData[i]?.totalPlayed;
+                    if (tp !== undefined) li.textContent = `${tp}`;
+                    listEver.appendChild(li);
+                });
+
+                // Recent windows: look at last N/M entries of the corresponding rolling-average series
+                const startSmall = Math.max(skipN, (seriesSmall?.length || 0) - smallN);
+                const startBig = Math.max(skipN, (seriesBig?.length || 0) - bigN);
+
+                const recentSmall = computeMaxInSeries(seriesSmall, startSmall, (seriesSmall?.length || 1) - 1);
+                valSmall.textContent = formatNum(recentSmall.max);
+                listSmall.innerHTML = '';
+                recentSmall.indices.forEach(i => {
+                    const li = document.createElement('li');
+                    const tp = rawData[i]?.totalPlayed;
+                    if (tp !== undefined) li.textContent = `${tp}`;
+                    listSmall.appendChild(li);
+                });
+
+                const recentBig = computeMaxInSeries(seriesBig, startBig, (seriesBig?.length || 1) - 1);
+                valBig.textContent = formatNum(recentBig.max);
+                listBig.innerHTML = '';
+                recentBig.indices.forEach(i => {
+                    const li = document.createElement('li');
+                    const tp = rawData[i]?.totalPlayed;
+                    if (tp !== undefined) li.textContent = `${tp}`;
+                    listBig.appendChild(li);
+                });
+            } catch (e) {
+                console.warn('Failed to render high average scores', e);
+            }
+        }
+        const renderLowAvgScores = () => {
+            try {
+                const valEver = document.getElementById('lowAvgScoreEverValue');
+                const listEver = document.getElementById('lowAvgScoreEverRanges');
+                const valSmall = document.getElementById('lowAvgScoreRecentSmallValue');
+                const listSmall = document.getElementById('lowAvgScoreRecentSmallRanges');
+                const valBig = document.getElementById('lowAvgScoreRecentBigValue');
+                const listBig = document.getElementById('lowAvgScoreRecentBigRanges');
+                if (!(valEver && listEver && valSmall && listSmall && valBig && listBig)) return;
+                const formatNum = n => typeof n === 'number' ? n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-';
+
+                const seriesEver = parsedData['recentScore_avg'];
+                const seriesSmall = parsedData['recentScore_avgSmall'];
+                const seriesBig = parsedData['recentScore_avgBig'];
+
+                const smallN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentSmall || 0));
+                const bigN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentBig || 0));
+                const skipN = Math.max(0, Math.min(smallN, bigN));
+
+                const ever = computeMinInSeries(seriesEver, skipN, (seriesEver?.length || 1) - 1);
+                valEver.textContent = formatNum(ever.min);
+                listEver.innerHTML = '';
+                ever.indices.forEach(i => {
+                    const li = document.createElement('li');
+                    const tp = rawData[i]?.totalPlayed;
+                    if (tp !== undefined) li.textContent = `${tp}`;
+                    listEver.appendChild(li);
+                });
+
+                const startSmall = Math.max(skipN, (seriesSmall?.length || 0) - smallN);
+                const startBig = Math.max(skipN, (seriesBig?.length || 0) - bigN);
+
+                const recentSmall = computeMinInSeries(seriesSmall, startSmall, (seriesSmall?.length || 1) - 1);
+                valSmall.textContent = formatNum(recentSmall.min);
+                listSmall.innerHTML = '';
+                recentSmall.indices.forEach(i => {
+                    const li = document.createElement('li');
+                    const tp = rawData[i]?.totalPlayed;
+                    if (tp !== undefined) li.textContent = `${tp}`;
+                    listSmall.appendChild(li);
+                });
+
+                const recentBig = computeMinInSeries(seriesBig, startBig, (seriesBig?.length || 1) - 1);
+                valBig.textContent = formatNum(recentBig.min);
+                listBig.innerHTML = '';
+                recentBig.indices.forEach(i => {
+                    const li = document.createElement('li');
+                    const tp = rawData[i]?.totalPlayed;
+                    if (tp !== undefined) li.textContent = `${tp}`;
+                    listBig.appendChild(li);
+                });
+            } catch (e) {
+                console.warn('Failed to render low average scores', e);
+            }
+        }
         const recent = (baseArr, propName, length) => {
             let count = 0;
             return baseArr.map((row, i, arr) => {
@@ -237,6 +777,11 @@
                 });
                 el.update('none');
             });
+            // Ensure High Score panels react to recent window changes as well
+            try { renderHighScores(); } catch (_) {}
+            try { renderHighAvgScores(); } catch (_) {}
+            try { renderLowScores(); } catch (_) {}
+            try { renderLowAvgScores(); } catch (_) {}
         }
 
         // reactivity

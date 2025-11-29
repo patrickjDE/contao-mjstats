@@ -10,6 +10,7 @@
         <label for="recent2">Recent (big)</label>
         <input x-data x-model.number="$store.graphs.numRecentBig" type="number" step="10" min="10" name="recent2" id="offset">
     </div>
+    <div x-data="statsView">
     <div id="section">
         <h3 id="anchor">Current goals</h3>
         <canvas id="chartjs"></canvas>
@@ -21,21 +22,61 @@
             <h4>{{ 'tl_patrickj_mjs.streakNoFirst.0'|trans }}</h4>
             <div>
                 <strong>{{ 'tl_patrickj_mjs.streakLongest.0'|trans }}:</strong>
-                <span id="streakLongestValue"></span>
+                <span x-text="noFirst.maxText"></span>
             </div>
-            <ul id="streakLongestRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+            <template x-if="noFirst.topGroups.length">
+                <ul style="margin: .25rem 0 0 .75rem;">
+                    <template x-for="group in noFirst.topGroups" :key="'nf-'+group.len">
+                        <li>
+                            <strong x-text="group.len.toLocaleString()"></strong>
+                            <ul style="margin: .25rem 0 0 .75rem;">
+                                <template x-for="rng in group.ranges" :key="'nf_rng_'+rng.start+'_'+rng.end">
+                                    <li x-text="rangeLabel(rng)"></li>
+                                </template>
+                            </ul>
+                        </li>
+                    </template>
+                </ul>
+            </template>
         </div>
         <div id="streaks-no-fourth" style="margin-top: 1rem;">
             <h4>{{ 'tl_patrickj_mjs.streakNoFourth.0'|trans }}</h4>
             <div>
                 <strong>{{ 'tl_patrickj_mjs.streakLongest.0'|trans }}:</strong>
-                <span id="streakNoFourthValue"></span>
+                <span x-text="noFourth.maxText"></span>
             </div>
-            <ul id="streakNoFourthRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+            <template x-if="noFourth.topGroups.length">
+                <ul style="margin: .25rem 0 0 .75rem;">
+                    <template x-for="group in noFourth.topGroups" :key="'n4-'+group.len">
+                        <li>
+                            <strong x-text="group.len.toLocaleString()"></strong>
+                            <ul style="margin: .25rem 0 0 .75rem;">
+                                <template x-for="rng in group.ranges" :key="'n4_rng_'+rng.start+'_'+rng.end">
+                                    <li x-text="rangeLabel(rng)"></li>
+                                </template>
+                            </ul>
+                        </li>
+                    </template>
+                </ul>
+            </template>
         </div>
         <div id="streaks-consecutive" style="margin-top: 1rem;">
             <h4>{{ 'tl_patrickj_mjs.streakConsecutive.0'|trans }}</h4>
-            <ul id="streakConsecutiveList" style="margin: .25rem 0 0 .75rem;"></ul>
+            <ul style="margin: .25rem 0 0 .75rem;">
+                <template x-for="row in consecutivePlace.top" :key="'cp-'+row.place">
+                    <li>
+                        <div>
+                            <strong x-text="row.placeLabel"></strong>:
+                            <span x-text="row.maxText"></span>
+                        </div>
+                        <ul style="margin: .25rem 0 0 .75rem;">
+                            <template x-for="rng in row.ranges" :key="'cp_rng_'+rng.start+'_'+rng.end">
+                                <li x-text="rangeLabel(rng)"></li>
+                            </template>
+                        </ul>
+                    </li>
+                </template>
+            </ul>
         </div>
     </div>
     <div id="section-points">
@@ -47,26 +88,71 @@
                 <li>
                     <div>
                         <strong>{{ 'tl_patrickj_mjs.highScoreEver.0'|trans }}:</strong>
-                        <span id="highScoreEverValue"></span>
+                        <span x-text="formatInt(highScores.ever.value)"></span>
                     </div>
-                    <ul id="highScoreEverRanges" style="margin: .25rem 0 0 .75rem;"></ul>
-                    <ul id="highScoreEverTop" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="tp in highScores.ever.tps" :key="'hse-'+tp">
+                            <li x-text="tp"></li>
+                        </template>
+                    </ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="grp in highScores.ever.topGroups" :key="'hset-'+grp.value">
+                            <li>
+                                <strong x-text="formatInt(grp.value)"></strong>
+                                <ul style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'hset_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
+                        </template>
+                    </ul>
                 </li>
                 <li>
                     <div>
                         <strong>{{ 'tl_patrickj_mjs.highScoreRecentSmall.0'|trans }}:</strong>
-                        <span id="highScoreRecentSmallValue"></span>
+                        <span x-text="formatInt(highScores.small.value)"></span>
                     </div>
-                    <ul id="highScoreRecentSmallRanges" style="margin: .25rem 0 0 .75rem;"></ul>
-                    <ul id="highScoreRecentSmallTop" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="tp in highScores.small.tps" :key="'hss-'+tp">
+                            <li x-text="tp"></li>
+                        </template>
+                    </ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="grp in highScores.small.topGroups" :key="'hsst-'+grp.value">
+                            <li>
+                                <strong x-text="formatInt(grp.value)"></strong>
+                                <ul style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'hsst_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
+                        </template>
+                    </ul>
                 </li>
                 <li>
                     <div>
                         <strong>{{ 'tl_patrickj_mjs.highScoreRecentBig.0'|trans }}:</strong>
-                        <span id="highScoreRecentBigValue"></span>
+                        <span x-text="formatInt(highScores.big.value)"></span>
                     </div>
-                    <ul id="highScoreRecentBigRanges" style="margin: .25rem 0 0 .75rem;"></ul>
-                    <ul id="highScoreRecentBigTop" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="tp in highScores.big.tps" :key="'hsb-'+tp">
+                            <li x-text="tp"></li>
+                        </template>
+                    </ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="grp in highScores.big.topGroups" :key="'hsbt-'+grp.value">
+                            <li>
+                                <strong x-text="formatInt(grp.value)"></strong>
+                                <ul style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'hsbt_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
+                        </template>
+                    </ul>
                 </li>
             </ul>
         </div>
@@ -76,26 +162,71 @@
                 <li>
                     <div>
                         <strong>{{ 'tl_patrickj_mjs.lowScoreEver.0'|trans }}:</strong>
-                        <span id="lowScoreEverValue"></span>
+                        <span x-text="formatInt(lowScores.ever.value)"></span>
                     </div>
-                    <ul id="lowScoreEverRanges" style="margin: .25rem 0 0 .75rem;"></ul>
-                    <ul id="lowScoreEverTop" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="tp in lowScores.ever.tps" :key="'lse-'+tp">
+                            <li x-text="tp"></li>
+                        </template>
+                    </ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="grp in lowScores.ever.topGroups" :key="'lset-'+grp.value">
+                            <li>
+                                <strong x-text="formatInt(grp.value)"></strong>
+                                <ul style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'lset_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
+                        </template>
+                    </ul>
                 </li>
                 <li>
                     <div>
                         <strong>{{ 'tl_patrickj_mjs.lowScoreRecentSmall.0'|trans }}:</strong>
-                        <span id="lowScoreRecentSmallValue"></span>
+                        <span x-text="formatInt(lowScores.small.value)"></span>
                     </div>
-                    <ul id="lowScoreRecentSmallRanges" style="margin: .25rem 0 0 .75rem;"></ul>
-                    <ul id="lowScoreRecentSmallTop" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="tp in lowScores.small.tps" :key="'lss-'+tp">
+                            <li x-text="tp"></li>
+                        </template>
+                    </ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="grp in lowScores.small.topGroups" :key="'lsst-'+grp.value">
+                            <li>
+                                <strong x-text="formatInt(grp.value)"></strong>
+                                <ul style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'lsst_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
+                        </template>
+                    </ul>
                 </li>
                 <li>
                     <div>
                         <strong>{{ 'tl_patrickj_mjs.lowScoreRecentBig.0'|trans }}:</strong>
-                        <span id="lowScoreRecentBigValue"></span>
+                        <span x-text="formatInt(lowScores.big.value)"></span>
                     </div>
-                    <ul id="lowScoreRecentBigRanges" style="margin: .25rem 0 0 .75rem;"></ul>
-                    <ul id="lowScoreRecentBigTop" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="tp in lowScores.big.tps" :key="'lsb-'+tp">
+                            <li x-text="tp"></li>
+                        </template>
+                    </ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="grp in lowScores.big.topGroups" :key="'lsbt-'+grp.value">
+                            <li>
+                                <strong x-text="formatInt(grp.value)"></strong>
+                                <ul style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'lsbt_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
+                        </template>
+                    </ul>
                 </li>
             </ul>
         </div>
@@ -105,23 +236,35 @@
                 <li>
                     <div>
                         <strong>{{ 'tl_patrickj_mjs.highAvgScoreEver.0'|trans }}:</strong>
-                        <span id="highAvgScoreEverValue"></span>
+                        <span x-text="formatAvg(highAvgScores.ever.value)"></span>
                     </div>
-                    <ul id="highAvgScoreEverRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="tp in highAvgScores.ever.tps" :key="'hae-'+tp">
+                            <li x-text="tp"></li>
+                        </template>
+                    </ul>
                 </li>
                 <li>
                     <div>
                         <strong>{{ 'tl_patrickj_mjs.highAvgScoreRecentSmall.0'|trans }}:</strong>
-                        <span id="highAvgScoreRecentSmallValue"></span>
+                        <span x-text="formatAvg(highAvgScores.small.value)"></span>
                     </div>
-                    <ul id="highAvgScoreRecentSmallRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="tp in highAvgScores.small.tps" :key="'has-'+tp">
+                            <li x-text="tp"></li>
+                        </template>
+                    </ul>
                 </li>
                 <li>
                     <div>
                         <strong>{{ 'tl_patrickj_mjs.highAvgScoreRecentBig.0'|trans }}:</strong>
-                        <span id="highAvgScoreRecentBigValue"></span>
+                        <span x-text="formatAvg(highAvgScores.big.value)"></span>
                     </div>
-                    <ul id="highAvgScoreRecentBigRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="tp in highAvgScores.big.tps" :key="'hab-'+tp">
+                            <li x-text="tp"></li>
+                        </template>
+                    </ul>
                 </li>
             </ul>
         </div>
@@ -131,23 +274,35 @@
                 <li>
                     <div>
                         <strong>{{ 'tl_patrickj_mjs.lowAvgScoreEver.0'|trans }}:</strong>
-                        <span id="lowAvgScoreEverValue"></span>
+                        <span x-text="formatAvg(lowAvgScores.ever.value)"></span>
                     </div>
-                    <ul id="lowAvgScoreEverRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="tp in lowAvgScores.ever.tps" :key="'lae-'+tp">
+                            <li x-text="tp"></li>
+                        </template>
+                    </ul>
                 </li>
                 <li>
                     <div>
                         <strong>{{ 'tl_patrickj_mjs.lowAvgScoreRecentSmall.0'|trans }}:</strong>
-                        <span id="lowAvgScoreRecentSmallValue"></span>
+                        <span x-text="formatAvg(lowAvgScores.small.value)"></span>
                     </div>
-                    <ul id="lowAvgScoreRecentSmallRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="tp in lowAvgScores.small.tps" :key="'las-'+tp">
+                            <li x-text="tp"></li>
+                        </template>
+                    </ul>
                 </li>
                 <li>
                     <div>
                         <strong>{{ 'tl_patrickj_mjs.lowAvgScoreRecentBig.0'|trans }}:</strong>
-                        <span id="lowAvgScoreRecentBigValue"></span>
+                        <span x-text="formatAvg(lowAvgScores.big.value)"></span>
                     </div>
-                    <ul id="lowAvgScoreRecentBigRanges" style="margin: .25rem 0 0 .75rem;"></ul>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="tp in lowAvgScores.big.tps" :key="'lab-'+tp">
+                            <li x-text="tp"></li>
+                        </template>
+                    </ul>
                 </li>
             </ul>
         </div>
@@ -163,6 +318,7 @@
     <div id="section-mega">
         <h3 id="anchor-mega">Other</h3>
         <canvas id="chartjs-mega"></canvas>
+    </div>
     </div>
 {% endblock %}
 
@@ -365,226 +521,127 @@
             const values = Array.from(map.keys()).sort((a, b) => order === 'asc' ? a - b : b - a).slice(0, topN);
             return values.map(value => ({ value, indices: map.get(value).sort((a, b) => a - b) }));
         }
-        const renderHighScores = () => {
-            try {
-                const valEver = document.getElementById('highScoreEverValue');
-                const listEver = document.getElementById('highScoreEverRanges');
-                const listEverTop = document.getElementById('highScoreEverTop');
-                const valSmall = document.getElementById('highScoreRecentSmallValue');
-                const listSmall = document.getElementById('highScoreRecentSmallRanges');
-                const listSmallTop = document.getElementById('highScoreRecentSmallTop');
-                const valBig = document.getElementById('highScoreRecentBigValue');
-                const listBig = document.getElementById('highScoreRecentBigRanges');
-                const listBigTop = document.getElementById('highScoreRecentBigTop');
-                if (!(valEver && listEver && valSmall && listSmall && valBig && listBig)) return;
-
+        // Alpine.js data-driven UI for stats panels
+        Alpine.data('statsView', () => ({
+            // formatters
+            formatInt(n) { return (typeof n === 'number' && !isNaN(n)) ? n.toLocaleString() : '-'; },
+            formatAvg(n) { return (typeof n === 'number' && !isNaN(n)) ? n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-'; },
+            rangeLabel(rng) {
+                const start = rawData[rng.start]?.totalPlayed;
+                const end = rawData[rng.end]?.totalPlayed;
+                if (start == null || end == null) return '';
+                return start === end ? `${start}` : `${start} - ${end}`;
+            },
+            // streaks: no first and no fourth, plus consecutive by place
+            get noFirst() {
+                const segments = computeStreaks(rawData, r => parseInt(r.recentResult) !== 1).segments;
+                const groups = topStreakGroups(segments, 3);
+                const max = groups.length ? groups[0].len : 0;
+                return {
+                    max,
+                    maxText: max ? `${max.toLocaleString()} {{ 'tl_patrickj_mjs.games.0'|trans }}` : '-',
+                    topGroups: groups,
+                };
+            },
+            get noFourth() {
+                const segments = computeStreaks(rawData, r => parseInt(r.recentResult) !== 4).segments;
+                const groups = topStreakGroups(segments, 3);
+                const max = groups.length ? groups[0].len : 0;
+                return {
+                    max,
+                    maxText: max ? `${max.toLocaleString()} {{ 'tl_patrickj_mjs.games.0'|trans }}` : '-',
+                    topGroups: groups,
+                };
+            },
+            get consecutivePlace() {
+                const out = [];
+                for (let p = 1; p <= 4; p++) {
+                    const segs = computeStreaks(rawData, r => parseInt(r.recentResult) === p).segments;
+                    const groups = topStreakGroups(segs, 1);
+                    const max = groups.length ? groups[0].len : 0;
+                    out.push({
+                        place: p,
+                        placeLabel: (p === 1 ? '{{ 'tl_patrickj_mjs.rateFirst.0'|trans }}' : p === 2 ? '{{ 'tl_patrickj_mjs.rateSecond.0'|trans }}' : p === 3 ? '{{ 'tl_patrickj_mjs.rateThird.0'|trans }}' : '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }}'),
+                        max,
+                        maxText: max ? `${max.toLocaleString()} {{ 'tl_patrickj_mjs.games.0'|trans }}` : '-',
+                        ranges: groups.length ? groups[0].ranges : [],
+                    });
+                }
+                return { top: out };
+            },
+            // High/Low match scores with groups
+            get highScores() {
                 const accessor = row => parseInt(row.recentScore);
-                const formatNum = n => typeof n === 'number' ? n.toLocaleString() : '-';
-
-                // Ever
-                const ever = computeMaxInRange(rawData, accessor, 0, rawData.length - 1);
-                valEver.textContent = formatNum(ever.max);
-                listEver.innerHTML = '';
-                ever.indices.forEach(i => {
-                    const li = document.createElement('li');
-                    const tp = rawData[i]?.totalPlayed;
-                    if (tp !== undefined) li.textContent = `${tp}`;
-                    listEver.appendChild(li);
+                const nSmall = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentSmall || 0));
+                const nBig = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentBig || 0));
+                const startSmall = Math.max(0, rawData.length - nSmall);
+                const startBig = Math.max(0, rawData.length - nBig);
+                const pack = (res) => ({
+                    value: res.max,
+                    tps: (res.indices || []).map(i => rawData[i]?.totalPlayed).filter(v => v != null),
                 });
-                if (listEverTop) {
-                    listEverTop.innerHTML = '';
-                    const groups = topValueGroupsInRange(rawData, accessor, 0, rawData.length - 1, 'desc', 3);
-                    groups.forEach(g => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<strong>${formatNum(g.value)}</strong>`;
-                        const ul = document.createElement('ul');
-                        ul.style.margin = '.25rem 0 0 .75rem';
-                        g.indices.forEach(i => {
-                            const li2 = document.createElement('li');
-                            const tp = rawData[i]?.totalPlayed;
-                            if (tp !== undefined) li2.textContent = `${tp}`;
-                            ul.appendChild(li2);
-                        });
-                        li.appendChild(ul);
-                        listEverTop.appendChild(li);
-                    });
-                }
-
-                // Recent windows
-                const smallN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentSmall || 0));
-                const bigN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentBig || 0));
-                const startSmall = Math.max(0, rawData.length - smallN);
-                const startBig = Math.max(0, rawData.length - bigN);
-
-                const recentSmall = computeMaxInRange(rawData, accessor, startSmall, rawData.length - 1);
-                valSmall.textContent = formatNum(recentSmall.max);
-                listSmall.innerHTML = '';
-                recentSmall.indices.forEach(i => {
-                    const li = document.createElement('li');
-                    const tp = rawData[i]?.totalPlayed;
-                    if (tp !== undefined) li.textContent = `${tp}`;
-                    listSmall.appendChild(li);
-                });
-                if (listSmallTop) {
-                    listSmallTop.innerHTML = '';
-                    const groups = topValueGroupsInRange(rawData, accessor, startSmall, rawData.length - 1, 'desc', 3);
-                    groups.forEach(g => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<strong>${formatNum(g.value)}</strong>`;
-                        const ul = document.createElement('ul');
-                        ul.style.margin = '.25rem 0 0 .75rem';
-                        g.indices.forEach(i => {
-                            const li2 = document.createElement('li');
-                            const tp = rawData[i]?.totalPlayed;
-                            if (tp !== undefined) li2.textContent = `${tp}`;
-                            ul.appendChild(li2);
-                        });
-                        li.appendChild(ul);
-                        listSmallTop.appendChild(li);
-                    });
-                }
-
-                const recentBig = computeMaxInRange(rawData, accessor, startBig, rawData.length - 1);
-                valBig.textContent = formatNum(recentBig.max);
-                listBig.innerHTML = '';
-                recentBig.indices.forEach(i => {
-                    const li = document.createElement('li');
-                    const tp = rawData[i]?.totalPlayed;
-                    if (tp !== undefined) li.textContent = `${tp}`;
-                    listBig.appendChild(li);
-                });
-                if (listBigTop) {
-                    listBigTop.innerHTML = '';
-                    const groups = topValueGroupsInRange(rawData, accessor, startBig, rawData.length - 1, 'desc', 3);
-                    groups.forEach(g => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<strong>${formatNum(g.value)}</strong>`;
-                        const ul = document.createElement('ul');
-                        ul.style.margin = '.25rem 0 0 .75rem';
-                        g.indices.forEach(i => {
-                            const li2 = document.createElement('li');
-                            const tp = rawData[i]?.totalPlayed;
-                            if (tp !== undefined) li2.textContent = `${tp}`;
-                            ul.appendChild(li2);
-                        });
-                        li.appendChild(ul);
-                        listBigTop.appendChild(li);
-                    });
-                }
-            } catch (e) {
-                console.warn('Failed to render high scores', e);
-            }
-        }
-        const renderLowScores = () => {
-            try {
-                const valEver = document.getElementById('lowScoreEverValue');
-                const listEver = document.getElementById('lowScoreEverRanges');
-                const listEverTop = document.getElementById('lowScoreEverTop');
-                const valSmall = document.getElementById('lowScoreRecentSmallValue');
-                const listSmall = document.getElementById('lowScoreRecentSmallRanges');
-                const listSmallTop = document.getElementById('lowScoreRecentSmallTop');
-                const valBig = document.getElementById('lowScoreRecentBigValue');
-                const listBig = document.getElementById('lowScoreRecentBigRanges');
-                const listBigTop = document.getElementById('lowScoreRecentBigTop');
-                if (!(valEver && listEver && valSmall && listSmall && valBig && listBig)) return;
-
+                const packGroups = (groups) => groups.map(g => ({ value: g.value, tps: g.indices.map(i => rawData[i]?.totalPlayed).filter(v => v != null) }));
+                const everRes = computeMaxInRange(rawData, accessor, 0, rawData.length - 1);
+                const smallRes = computeMaxInRange(rawData, accessor, startSmall, rawData.length - 1);
+                const bigRes = computeMaxInRange(rawData, accessor, startBig, rawData.length - 1);
+                return {
+                    ever: { ...pack(everRes), topGroups: packGroups(topValueGroupsInRange(rawData, accessor, 0, rawData.length - 1, 'desc', 3)) },
+                    small: { ...pack(smallRes), topGroups: packGroups(topValueGroupsInRange(rawData, accessor, startSmall, rawData.length - 1, 'desc', 3)) },
+                    big: { ...pack(bigRes), topGroups: packGroups(topValueGroupsInRange(rawData, accessor, startBig, rawData.length - 1, 'desc', 3)) },
+                };
+            },
+            get lowScores() {
                 const accessor = row => parseInt(row.recentScore);
-                const formatNum = n => typeof n === 'number' ? n.toLocaleString() : '-';
-
-                // Ever
-                const ever = computeMinInRange(rawData, accessor, 0, rawData.length - 1);
-                valEver.textContent = formatNum(ever.min);
-                listEver.innerHTML = '';
-                ever.indices.forEach(i => {
-                    const li = document.createElement('li');
-                    const tp = rawData[i]?.totalPlayed;
-                    if (tp !== undefined) li.textContent = `${tp}`;
-                    listEver.appendChild(li);
+                const nSmall = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentSmall || 0));
+                const nBig = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentBig || 0));
+                const startSmall = Math.max(0, rawData.length - nSmall);
+                const startBig = Math.max(0, rawData.length - nBig);
+                const pack = (res) => ({
+                    value: res.min,
+                    tps: (res.indices || []).map(i => rawData[i]?.totalPlayed).filter(v => v != null),
                 });
-                if (listEverTop) {
-                    listEverTop.innerHTML = '';
-                    const groups = topValueGroupsInRange(rawData, accessor, 0, rawData.length - 1, 'asc', 3);
-                    groups.forEach(g => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<strong>${formatNum(g.value)}</strong>`;
-                        const ul = document.createElement('ul');
-                        ul.style.margin = '.25rem 0 0 .75rem';
-                        g.indices.forEach(i => {
-                            const li2 = document.createElement('li');
-                            const tp = rawData[i]?.totalPlayed;
-                            if (tp !== undefined) li2.textContent = `${tp}`;
-                            ul.appendChild(li2);
-                        });
-                        li.appendChild(ul);
-                        listEverTop.appendChild(li);
-                    });
-                }
-
-                // Recent windows
-                const smallN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentSmall || 0));
-                const bigN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentBig || 0));
-                const startSmall = Math.max(0, rawData.length - smallN);
-                const startBig = Math.max(0, rawData.length - bigN);
-
-                const recentSmall = computeMinInRange(rawData, accessor, startSmall, rawData.length - 1);
-                valSmall.textContent = formatNum(recentSmall.min);
-                listSmall.innerHTML = '';
-                recentSmall.indices.forEach(i => {
-                    const li = document.createElement('li');
-                    const tp = rawData[i]?.totalPlayed;
-                    if (tp !== undefined) li.textContent = `${tp}`;
-                    listSmall.appendChild(li);
-                });
-                if (listSmallTop) {
-                    listSmallTop.innerHTML = '';
-                    const groups = topValueGroupsInRange(rawData, accessor, startSmall, rawData.length - 1, 'asc', 3);
-                    groups.forEach(g => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<strong>${formatNum(g.value)}</strong>`;
-                        const ul = document.createElement('ul');
-                        ul.style.margin = '.25rem 0 0 .75rem';
-                        g.indices.forEach(i => {
-                            const li2 = document.createElement('li');
-                            const tp = rawData[i]?.totalPlayed;
-                            if (tp !== undefined) li2.textContent = `${tp}`;
-                            ul.appendChild(li2);
-                        });
-                        li.appendChild(ul);
-                        listSmallTop.appendChild(li);
-                    });
-                }
-
-                const recentBig = computeMinInRange(rawData, accessor, startBig, rawData.length - 1);
-                valBig.textContent = formatNum(recentBig.min);
-                listBig.innerHTML = '';
-                recentBig.indices.forEach(i => {
-                    const li = document.createElement('li');
-                    const tp = rawData[i]?.totalPlayed;
-                    if (tp !== undefined) li.textContent = `${tp}`;
-                    listBig.appendChild(li);
-                });
-                if (listBigTop) {
-                    listBigTop.innerHTML = '';
-                    const groups = topValueGroupsInRange(rawData, accessor, startBig, rawData.length - 1, 'asc', 3);
-                    groups.forEach(g => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<strong>${formatNum(g.value)}</strong>`;
-                        const ul = document.createElement('ul');
-                        ul.style.margin = '.25rem 0 0 .75rem';
-                        g.indices.forEach(i => {
-                            const li2 = document.createElement('li');
-                            const tp = rawData[i]?.totalPlayed;
-                            if (tp !== undefined) li2.textContent = `${tp}`;
-                            ul.appendChild(li2);
-                        });
-                        li.appendChild(ul);
-                        listBigTop.appendChild(li);
-                    });
-                }
-            } catch (e) {
-                console.warn('Failed to render low scores', e);
-            }
-        }
+                const packGroups = (groups) => groups.map(g => ({ value: g.value, tps: g.indices.map(i => rawData[i]?.totalPlayed).filter(v => v != null) }));
+                const everRes = computeMinInRange(rawData, accessor, 0, rawData.length - 1);
+                const smallRes = computeMinInRange(rawData, accessor, startSmall, rawData.length - 1);
+                const bigRes = computeMinInRange(rawData, accessor, startBig, rawData.length - 1);
+                return {
+                    ever: { ...pack(everRes), topGroups: packGroups(topValueGroupsInRange(rawData, accessor, 0, rawData.length - 1, 'asc', 3)) },
+                    small: { ...pack(smallRes), topGroups: packGroups(topValueGroupsInRange(rawData, accessor, startSmall, rawData.length - 1, 'asc', 3)) },
+                    big: { ...pack(bigRes), topGroups: packGroups(topValueGroupsInRange(rawData, accessor, startBig, rawData.length - 1, 'asc', 3)) },
+                };
+            },
+            // Average scores (use parsedData series) with skip rule
+            get highAvgScores() {
+                const seriesEver = parsedData['recentScore_avg'];
+                const seriesSmall = parsedData['recentScore_avgSmall'];
+                const seriesBig = parsedData['recentScore_avgBig'];
+                const nSmall = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentSmall || 0));
+                const nBig = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentBig || 0));
+                const skipN = Math.max(0, Math.min(nSmall, nBig));
+                const startSmall = Math.max(skipN, (seriesSmall?.length || 0) - nSmall);
+                const startBig = Math.max(skipN, (seriesBig?.length || 0) - nBig);
+                const everRes = computeMaxInSeries(seriesEver, skipN, (seriesEver?.length || 1) - 1);
+                const smallRes = computeMaxInSeries(seriesSmall, startSmall, (seriesSmall?.length || 1) - 1);
+                const bigRes = computeMaxInSeries(seriesBig, startBig, (seriesBig?.length || 1) - 1);
+                const pack = (res) => ({ value: res.max, tps: (res.indices || []).map(i => rawData[i]?.totalPlayed).filter(v => v != null) });
+                return { ever: pack(everRes), small: pack(smallRes), big: pack(bigRes) };
+            },
+            get lowAvgScores() {
+                const seriesEver = parsedData['recentScore_avg'];
+                const seriesSmall = parsedData['recentScore_avgSmall'];
+                const seriesBig = parsedData['recentScore_avgBig'];
+                const nSmall = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentSmall || 0));
+                const nBig = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentBig || 0));
+                const skipN = Math.max(0, Math.min(nSmall, nBig));
+                const startSmall = Math.max(skipN, (seriesSmall?.length || 0) - nSmall);
+                const startBig = Math.max(skipN, (seriesBig?.length || 0) - nBig);
+                const everRes = computeMinInSeries(seriesEver, skipN, (seriesEver?.length || 1) - 1);
+                const smallRes = computeMinInSeries(seriesSmall, startSmall, (seriesSmall?.length || 1) - 1);
+                const bigRes = computeMinInSeries(seriesBig, startBig, (seriesBig?.length || 1) - 1);
+                const pack = (res) => ({ value: res.min, tps: (res.indices || []).map(i => rawData[i]?.totalPlayed).filter(v => v != null) });
+                return { ever: pack(everRes), small: pack(smallRes), big: pack(bigRes) };
+            },
+        }));
         const renderHighAvgScores = () => {
             try {
                 const valEver = document.getElementById('highAvgScoreEverValue');
@@ -777,11 +834,7 @@
                 });
                 el.update('none');
             });
-            // Ensure High Score panels react to recent window changes as well
-            try { renderHighScores(); } catch (_) {}
-            try { renderHighAvgScores(); } catch (_) {}
-            try { renderLowScores(); } catch (_) {}
-            try { renderLowAvgScores(); } catch (_) {}
+            // UI now bound with Alpine templates; no imperative DOM updates needed
         }
 
         // reactivity

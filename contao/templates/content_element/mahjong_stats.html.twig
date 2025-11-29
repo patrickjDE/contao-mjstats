@@ -20,42 +20,40 @@
         <canvas id="chartjs-rank"></canvas>
         <div id="streaks-no-first" style="margin-top: 1rem;">
             <h4>{{ 'tl_patrickj_mjs.streakNoFirst.0'|trans }}</h4>
-            <div>
-                <strong>{{ 'tl_patrickj_mjs.streakLongest.0'|trans }}:</strong>
-                <span x-text="noFirst.maxText"></span>
-            </div>
             <template x-if="noFirst.topGroups.length">
                 <ul style="margin: .25rem 0 0 .75rem;">
                     <template x-for="group in noFirst.topGroups" :key="'nf-'+group.len">
-                        <li>
-                            <strong x-text="group.len.toLocaleString()"></strong>
-                            <ul style="margin: .25rem 0 0 .75rem;">
-                                <template x-for="rng in group.ranges" :key="'nf_rng_'+rng.start+'_'+rng.end">
-                                    <li x-text="rangeLabel(rng)"></li>
-                                </template>
-                            </ul>
-                        </li>
+                        <template x-if="group.len > 1">
+                            <li x-data="{closed: true}">
+                                <strong x-text="group.len.toLocaleString()"></strong>
+                                <span @click="closed=!closed" x-text="toggleLabel(group)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="rng in group.ranges" :key="'nf_rng_'+rng.start+'_'+rng.end">
+                                        <li x-text="rangeLabel(rng)"></li>
+                                    </template>
+                                </ul>
+                            </li>
+                        </template>
                     </template>
                 </ul>
             </template>
         </div>
         <div id="streaks-no-fourth" style="margin-top: 1rem;">
             <h4>{{ 'tl_patrickj_mjs.streakNoFourth.0'|trans }}</h4>
-            <div>
-                <strong>{{ 'tl_patrickj_mjs.streakLongest.0'|trans }}:</strong>
-                <span x-text="noFourth.maxText"></span>
-            </div>
             <template x-if="noFourth.topGroups.length">
                 <ul style="margin: .25rem 0 0 .75rem;">
                     <template x-for="group in noFourth.topGroups" :key="'n4-'+group.len">
-                        <li>
-                            <strong x-text="group.len.toLocaleString()"></strong>
-                            <ul style="margin: .25rem 0 0 .75rem;">
-                                <template x-for="rng in group.ranges" :key="'n4_rng_'+rng.start+'_'+rng.end">
-                                    <li x-text="rangeLabel(rng)"></li>
-                                </template>
-                            </ul>
-                        </li>
+                        <template x-if="group.len > 1">
+                            <li x-data="{closed: true}">
+                                <strong x-text="group.len.toLocaleString()"></strong>
+                                <span @click="closed=!closed" x-text="toggleLabel(group)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="rng in group.ranges" :key="'n4_rng_'+rng.start+'_'+rng.end">
+                                        <li x-text="rangeLabel(rng)"></li>
+                                    </template>
+                                </ul>
+                            </li>
+                        </template>
                     </template>
                 </ul>
             </template>
@@ -65,13 +63,20 @@
             <ul style="margin: .25rem 0 0 .75rem;">
                 <template x-for="row in consecutivePlace.top" :key="'cp-'+row.place">
                     <li>
-                        <div>
-                            <strong x-text="row.placeLabel"></strong>:
-                            <span x-text="row.maxText"></span>
-                        </div>
+                        <div><strong x-text="row.placeLabel"></strong>:</div>
                         <ul style="margin: .25rem 0 0 .75rem;">
-                            <template x-for="rng in row.ranges" :key="'cp_rng_'+rng.start+'_'+rng.end">
-                                <li x-text="rangeLabel(rng)"></li>
+                            <template x-for="group in row.groups" :key="'cp_grp_'+row.place+'_'+group.len">
+                                <template x-if="group.len > 1">
+                                    <li x-data="{closed: true}">
+                                        <strong x-text="group.len.toLocaleString()"></strong>
+                                        <span @click="closed=!closed" x-text="toggleLabel(group)"></span>
+                                        <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
+                                            <template x-for="rng in group.ranges" :key="'cp_rng_'+row.place+'_'+rng.start+'_'+rng.end">
+                                                <li x-text="rangeLabel(rng)"></li>
+                                            </template>
+                                        </ul>
+                                    </li>
+                                </template>
                             </template>
                         </ul>
                     </li>
@@ -532,39 +537,35 @@
                 if (start == null || end == null) return '';
                 return start === end ? `${start}` : `${start} - ${end}`;
             },
+            toggleLabel(group) {
+                const times = '{{ 'tl_patrickj_mjs.times.0'|trans }}';
+                const show = '{{ 'tl_patrickj_mjs.show.0'|trans }}';
+                return '(' + (group?.ranges?.length > 1 ? (group.ranges.length + ' ' + times + ' - ') : '') + show + ')';
+            },
             // streaks: no first and no fourth, plus consecutive by place
             get noFirst() {
                 const segments = computeStreaks(rawData, r => parseInt(r.recentResult) !== 1).segments;
                 const groups = topStreakGroups(segments, 3);
-                const max = groups.length ? groups[0].len : 0;
                 return {
-                    max,
-                    maxText: max ? `${max.toLocaleString()} {{ 'tl_patrickj_mjs.games.0'|trans }}` : '-',
                     topGroups: groups,
                 };
             },
             get noFourth() {
                 const segments = computeStreaks(rawData, r => parseInt(r.recentResult) !== 4).segments;
                 const groups = topStreakGroups(segments, 3);
-                const max = groups.length ? groups[0].len : 0;
                 return {
-                    max,
-                    maxText: max ? `${max.toLocaleString()} {{ 'tl_patrickj_mjs.games.0'|trans }}` : '-',
                     topGroups: groups,
                 };
             },
             get consecutivePlace() {
                 const out = [];
                 for (let p = 1; p <= 4; p++) {
-                    const segs = computeStreaks(rawData, r => parseInt(r.recentResult) === p).segments;
-                    const groups = topStreakGroups(segs, 1);
-                    const max = groups.length ? groups[0].len : 0;
+                    const segments = computeStreaks(rawData, r => parseInt(r.recentResult) === p).segments;
+                    const groups = topStreakGroups(segments, 3);
                     out.push({
                         place: p,
                         placeLabel: (p === 1 ? '{{ 'tl_patrickj_mjs.rateFirst.0'|trans }}' : p === 2 ? '{{ 'tl_patrickj_mjs.rateSecond.0'|trans }}' : p === 3 ? '{{ 'tl_patrickj_mjs.rateThird.0'|trans }}' : '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }}'),
-                        max,
-                        maxText: max ? `${max.toLocaleString()} {{ 'tl_patrickj_mjs.games.0'|trans }}` : '-',
-                        ranges: groups.length ? groups[0].ranges : [],
+                        groups,
                     });
                 }
                 return { top: out };
@@ -642,122 +643,8 @@
                 return { ever: pack(everRes), small: pack(smallRes), big: pack(bigRes) };
             },
         }));
-        const renderHighAvgScores = () => {
-            try {
-                const valEver = document.getElementById('highAvgScoreEverValue');
-                const listEver = document.getElementById('highAvgScoreEverRanges');
-                const valSmall = document.getElementById('highAvgScoreRecentSmallValue');
-                const listSmall = document.getElementById('highAvgScoreRecentSmallRanges');
-                const valBig = document.getElementById('highAvgScoreRecentBigValue');
-                const listBig = document.getElementById('highAvgScoreRecentBigRanges');
-                if (!(valEver && listEver && valSmall && listSmall && valBig && listBig)) return;
-                const formatNum = n => typeof n === 'number' ? n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-';
 
-                // Series sources: use parsedData rolling averages
-                const seriesEver = parsedData['recentScore_avg']; // cumulative average
-                const seriesSmall = parsedData['recentScore_avgSmall']; // rolling avg with window = numRecentSmall
-                const seriesBig = parsedData['recentScore_avgBig']; // rolling avg with window = numRecentBig
-
-                // Determine how many initial entries to ignore: min(numRecentSmall, numRecentBig)
-                const smallN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentSmall || 0));
-                const bigN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentBig || 0));
-                const skipN = Math.max(0, Math.min(smallN, bigN));
-
-                // Ever (search entire series after skipping first N entries)
-                const ever = computeMaxInSeries(seriesEver, skipN, (seriesEver?.length || 1) - 1);
-                valEver.textContent = formatNum(ever.max);
-                listEver.innerHTML = '';
-                ever.indices.forEach(i => {
-                    const li = document.createElement('li');
-                    const tp = rawData[i]?.totalPlayed;
-                    if (tp !== undefined) li.textContent = `${tp}`;
-                    listEver.appendChild(li);
-                });
-
-                // Recent windows: look at last N/M entries of the corresponding rolling-average series
-                const startSmall = Math.max(skipN, (seriesSmall?.length || 0) - smallN);
-                const startBig = Math.max(skipN, (seriesBig?.length || 0) - bigN);
-
-                const recentSmall = computeMaxInSeries(seriesSmall, startSmall, (seriesSmall?.length || 1) - 1);
-                valSmall.textContent = formatNum(recentSmall.max);
-                listSmall.innerHTML = '';
-                recentSmall.indices.forEach(i => {
-                    const li = document.createElement('li');
-                    const tp = rawData[i]?.totalPlayed;
-                    if (tp !== undefined) li.textContent = `${tp}`;
-                    listSmall.appendChild(li);
-                });
-
-                const recentBig = computeMaxInSeries(seriesBig, startBig, (seriesBig?.length || 1) - 1);
-                valBig.textContent = formatNum(recentBig.max);
-                listBig.innerHTML = '';
-                recentBig.indices.forEach(i => {
-                    const li = document.createElement('li');
-                    const tp = rawData[i]?.totalPlayed;
-                    if (tp !== undefined) li.textContent = `${tp}`;
-                    listBig.appendChild(li);
-                });
-            } catch (e) {
-                console.warn('Failed to render high average scores', e);
-            }
-        }
-        const renderLowAvgScores = () => {
-            try {
-                const valEver = document.getElementById('lowAvgScoreEverValue');
-                const listEver = document.getElementById('lowAvgScoreEverRanges');
-                const valSmall = document.getElementById('lowAvgScoreRecentSmallValue');
-                const listSmall = document.getElementById('lowAvgScoreRecentSmallRanges');
-                const valBig = document.getElementById('lowAvgScoreRecentBigValue');
-                const listBig = document.getElementById('lowAvgScoreRecentBigRanges');
-                if (!(valEver && listEver && valSmall && listSmall && valBig && listBig)) return;
-                const formatNum = n => typeof n === 'number' ? n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-';
-
-                const seriesEver = parsedData['recentScore_avg'];
-                const seriesSmall = parsedData['recentScore_avgSmall'];
-                const seriesBig = parsedData['recentScore_avgBig'];
-
-                const smallN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentSmall || 0));
-                const bigN = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentBig || 0));
-                const skipN = Math.max(0, Math.min(smallN, bigN));
-
-                const ever = computeMinInSeries(seriesEver, skipN, (seriesEver?.length || 1) - 1);
-                valEver.textContent = formatNum(ever.min);
-                listEver.innerHTML = '';
-                ever.indices.forEach(i => {
-                    const li = document.createElement('li');
-                    const tp = rawData[i]?.totalPlayed;
-                    if (tp !== undefined) li.textContent = `${tp}`;
-                    listEver.appendChild(li);
-                });
-
-                const startSmall = Math.max(skipN, (seriesSmall?.length || 0) - smallN);
-                const startBig = Math.max(skipN, (seriesBig?.length || 0) - bigN);
-
-                const recentSmall = computeMinInSeries(seriesSmall, startSmall, (seriesSmall?.length || 1) - 1);
-                valSmall.textContent = formatNum(recentSmall.min);
-                listSmall.innerHTML = '';
-                recentSmall.indices.forEach(i => {
-                    const li = document.createElement('li');
-                    const tp = rawData[i]?.totalPlayed;
-                    if (tp !== undefined) li.textContent = `${tp}`;
-                    listSmall.appendChild(li);
-                });
-
-                const recentBig = computeMinInSeries(seriesBig, startBig, (seriesBig?.length || 1) - 1);
-                valBig.textContent = formatNum(recentBig.min);
-                listBig.innerHTML = '';
-                recentBig.indices.forEach(i => {
-                    const li = document.createElement('li');
-                    const tp = rawData[i]?.totalPlayed;
-                    if (tp !== undefined) li.textContent = `${tp}`;
-                    listBig.appendChild(li);
-                });
-            } catch (e) {
-                console.warn('Failed to render low average scores', e);
-            }
-        }
         const recent = (baseArr, propName, length) => {
-            let count = 0;
             return baseArr.map((row, i, arr) => {
                 if (!length) return row[propName];
 
@@ -816,7 +703,7 @@
 
         // charts
         const charts = [];
-        updateCharts = () => {
+        const updateCharts = () => {
             charts.forEach(el => {
                 el.data.labels = slicedData.totalPlayed;
                 el.data.datasets.forEach(dataset => {
@@ -1638,108 +1525,6 @@
             },
         });
         charts.push(megaChart);
-
-        // Render longest no-1st streaks info (overall)
-        try {
-            const streaks = computeStreaks(rawData, row => parseInt(row.recentResult) !== 1);
-            const longestValueEl = document.getElementById('streakLongestValue');
-            const listEl = document.getElementById('streakLongestRanges');
-            if (longestValueEl && listEl) {
-                longestValueEl.textContent = streaks.max + ' ' + '{{ 'tl_patrickj_mjs.games.0'|trans }}';
-                listEl.innerHTML = '';
-                // Show top 3 unique lengths (including the longest) with their ranges
-                topStreakGroups(streaks.segments, 3).forEach(group => {
-                    const li = document.createElement('li');
-                    const title = document.createElement('div');
-                    title.innerHTML = `<strong>${group.len} {{ 'tl_patrickj_mjs.games.0'|trans }}</strong>`;
-                    li.appendChild(title);
-                    const sub = document.createElement('ul');
-                    sub.style.margin = '.25rem 0 0 .75rem';
-                    group.ranges.forEach(s => {
-                        const r = document.createElement('li');
-                        const start = rawData[s.start]?.totalPlayed;
-                        const end = rawData[s.end]?.totalPlayed;
-                        if (start !== undefined && end !== undefined) {
-                            r.textContent = `${start} - ${end}`;
-                            sub.appendChild(r);
-                        }
-                    });
-                    li.appendChild(sub);
-                    listEl.appendChild(li);
-                });
-            }
-        } catch (e) {
-            console.warn('Failed to compute no-1st streaks', e);
-        }
-
-        // Render longest no-4th streaks info (overall)
-        try {
-            const streaks = computeStreaks(rawData, row => parseInt(row.recentResult) !== 4);
-            const valueEl = document.getElementById('streakNoFourthValue');
-            const listEl = document.getElementById('streakNoFourthRanges');
-            if (valueEl && listEl) {
-                valueEl.textContent = streaks.max + ' ' + '{{ 'tl_patrickj_mjs.games.0'|trans }}';
-                listEl.innerHTML = '';
-                // Show top 3 unique lengths (including the longest) with their ranges
-                topStreakGroups(streaks.segments, 5).forEach(group => {
-                    const li = document.createElement('li');
-                    const title = document.createElement('div');
-                    title.innerHTML = `<strong>${group.len} {{ 'tl_patrickj_mjs.games.0'|trans }}</strong>`;
-                    li.appendChild(title);
-                    const sub = document.createElement('ul');
-                    sub.style.margin = '.25rem 0 0 .75rem';
-                    group.ranges.forEach(s => {
-                        const r = document.createElement('li');
-                        const start = rawData[s.start]?.totalPlayed;
-                        const end = rawData[s.end]?.totalPlayed;
-                        if (start !== undefined && end !== undefined) {
-                            r.textContent = `${start} - ${end}`;
-                            sub.appendChild(r);
-                        }
-                    });
-                    li.appendChild(sub);
-                    listEl.appendChild(li);
-                });
-            }
-        } catch (e) {
-            console.warn('Failed to compute no-4th streaks', e);
-        }
-
-        // Render consecutive place streaks (1st–4th)
-        try {
-            const container = document.getElementById('streakConsecutiveList');
-            if (container) {
-                container.innerHTML = '';
-                const labels = {
-                    1: '{{ 'tl_patrickj_mjs.rateFirst.0'|trans }}',
-                    2: '{{ 'tl_patrickj_mjs.rateSecond.0'|trans }}',
-                    3: '{{ 'tl_patrickj_mjs.rateThird.0'|trans }}',
-                    4: '{{ 'tl_patrickj_mjs.rateFourth.0'|trans }}',
-                };
-                for (let p = 1; p <= 4; p++) {
-                    const streaks = computeStreaks(rawData, row => parseInt(row.recentResult) === p);
-                    const li = document.createElement('li');
-                    const title = document.createElement('div');
-                    title.innerHTML = `<strong>${labels[p]}:</strong> ${streaks.max} {{ 'tl_patrickj_mjs.games.0'|trans }}`;
-                    li.appendChild(title);
-                    const sub = document.createElement('ul');
-                    sub.style.margin = '.25rem 0 0 .75rem';
-                    streaks.longest.forEach(s => {
-                        const r = document.createElement('li');
-                        const start = rawData[s.start]?.totalPlayed;
-                        const end = rawData[s.end]?.totalPlayed;
-                        if (start !== undefined && end !== undefined) {
-                            r.textContent = `${start} - ${end}`;
-                            sub.appendChild(r);
-                        }
-                    });
-                    li.appendChild(sub);
-                    container.appendChild(li);
-                }
-            }
-        } catch (e) {
-            console.warn('Failed to compute consecutive place streaks', e);
-        }
     });
 
         document.querySelectorAll('[id^="anchor"]').forEach(el => el.addEventListener('click', e => window.location.hash = e.target.id.replace('anchor', 'section')))

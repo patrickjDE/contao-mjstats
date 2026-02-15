@@ -18,7 +18,9 @@
     <div id="section-rank">
         <h3 id="anchor-rank">Rank</h3>
         <canvas id="chartjs-rank"></canvas>
-        <div id="streaks-no-first" style="margin-top: 1rem;">
+    </div>
+    <div id="section-rank-tables" class="table-grid">
+        <div id="streaks-no-first">
             <h4>{{ 'tl_patrickj_mjs.streakNoFirst.0'|trans }}</h4>
             <template x-if="noFirst.topGroups.length">
                 <ul style="margin: .25rem 0 0 .75rem;">
@@ -26,7 +28,7 @@
                         <template x-if="group.len > 1">
                             <li x-data="{closed: true}">
                                 <strong x-text="group.len.toLocaleString()"></strong>
-                                <span @click="closed=!closed" x-text="toggleLabel(group)"></span>
+                                <span class="toggle" @click="closed=!closed" x-text="toggleLabel(group)"></span>
                                 <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
                                     <template x-for="rng in group.ranges" :key="'nf_rng_'+rng.start+'_'+rng.end">
                                         <li x-text="rangeLabel(rng)"></li>
@@ -38,7 +40,7 @@
                 </ul>
             </template>
         </div>
-        <div id="streaks-no-fourth" style="margin-top: 1rem;">
+        <div id="streaks-no-fourth">
             <h4>{{ 'tl_patrickj_mjs.streakNoFourth.0'|trans }}</h4>
             <template x-if="noFourth.topGroups.length">
                 <ul style="margin: .25rem 0 0 .75rem;">
@@ -46,7 +48,7 @@
                         <template x-if="group.len > 1">
                             <li x-data="{closed: true}">
                                 <strong x-text="group.len.toLocaleString()"></strong>
-                                <span @click="closed=!closed" x-text="toggleLabel(group)"></span>
+                                <span class="toggle" @click="closed=!closed" x-text="toggleLabel(group)"></span>
                                 <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
                                     <template x-for="rng in group.ranges" :key="'n4_rng_'+rng.start+'_'+rng.end">
                                         <li x-text="rangeLabel(rng)"></li>
@@ -58,7 +60,7 @@
                 </ul>
             </template>
         </div>
-        <div id="streaks-consecutive" style="margin-top: 1rem;">
+        <div id="streaks-consecutive">
             <h4>{{ 'tl_patrickj_mjs.streakConsecutive.0'|trans }}</h4>
             <ul style="margin: .25rem 0 0 .75rem;">
                 <template x-for="row in consecutivePlace.top" :key="'cp-'+row.place">
@@ -69,7 +71,7 @@
                                 <template x-if="group.len > 1">
                                     <li x-data="{closed: true}">
                                         <strong x-text="group.len.toLocaleString()"></strong>
-                                        <span @click="closed=!closed" x-text="toggleLabel(group)"></span>
+                                        <span class="toggle" @click="closed=!closed" x-text="toggleLabel(group)"></span>
                                         <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
                                             <template x-for="rng in group.ranges" :key="'cp_rng_'+row.place+'_'+rng.start+'_'+rng.end">
                                                 <li x-text="rangeLabel(rng)"></li>
@@ -87,7 +89,9 @@
     <div id="section-points">
         <h3 id="anchor-points">Points</h3>
         <canvas id="chartjs-points"></canvas>
-        <div id="high-scores" style="margin-top: 1rem;">
+    </div>
+    <div id="section-points-tables" class="table-grid">
+        <div id="high-scores">
             <h4>{{ 'tl_patrickj_mjs.highScores.0'|trans }}</h4>
             <ul style="margin: .25rem 0 0 .75rem;">
                 <li>
@@ -96,25 +100,9 @@
                         <template x-for="grp in highScores.ever.topGroups" :key="'hset-'+grp.value">
                             <li x-data="{closed: true}">
                                 <strong x-text="formatInt(grp.value)"></strong>
-                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <span class="toggle" @click="closed=!closed" x-text="toggleLabel(grp)"></span>
                                 <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
                                     <template x-for="tp in grp.tps" :key="'hset_tp_'+tp">
-                                        <li x-text="tp"></li>
-                                    </template>
-                                </ul>
-                            </li>
-                        </template>
-                    </ul>
-                </li>
-                <li>
-                    <div><strong x-text="'Recent (' + Alpine.store('graphs').numRecentSmall + '):'"></strong></div>
-                    <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="grp in highScores.small.topGroups" :key="'hsst-'+grp.value">
-                            <li x-data="{closed: true}">
-                                <strong x-text="formatInt(grp.value)"></strong>
-                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
-                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
-                                    <template x-for="tp in grp.tps" :key="'hsst_tp_'+tp">
                                         <li x-text="tp"></li>
                                     </template>
                                 </ul>
@@ -128,30 +116,9 @@
                         <template x-for="grp in highScores.big.topGroups" :key="'hsbt-'+grp.value">
                             <li x-data="{closed: true}">
                                 <strong x-text="formatInt(grp.value)"></strong>
-                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <span class="toggle" @click="closed=!closed" x-text="toggleLabel(grp)"></span>
                                 <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
                                     <template x-for="tp in grp.tps" :key="'hsbt_tp_'+tp">
-                                        <li x-text="tp"></li>
-                                    </template>
-                                </ul>
-                            </li>
-                        </template>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-        <div id="low-scores" style="margin-top: 1rem;">
-            <h4>{{ 'tl_patrickj_mjs.lowScores.0'|trans }}</h4>
-            <ul style="margin: .25rem 0 0 .75rem;">
-                <li>
-                    <div><strong>{{ 'tl_patrickj_mjs.lowScoreEver.0'|trans }}:</strong></div>
-                    <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="grp in lowScores.ever.topGroups" :key="'lset-'+grp.value">
-                            <li x-data="{closed: true}">
-                                <strong x-text="formatInt(grp.value)"></strong>
-                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
-                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
-                                    <template x-for="tp in grp.tps" :key="'lset_tp_'+tp">
                                         <li x-text="tp"></li>
                                     </template>
                                 </ul>
@@ -162,12 +129,33 @@
                 <li>
                     <div><strong x-text="'Recent (' + Alpine.store('graphs').numRecentSmall + '):'"></strong></div>
                     <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="grp in lowScores.small.topGroups" :key="'lsst-'+grp.value">
+                        <template x-for="grp in highScores.small.topGroups" :key="'hsst-'+grp.value">
                             <li x-data="{closed: true}">
                                 <strong x-text="formatInt(grp.value)"></strong>
-                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <span class="toggle" @click="closed=!closed" x-text="toggleLabel(grp)"></span>
                                 <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
-                                    <template x-for="tp in grp.tps" :key="'lsst_tp_'+tp">
+                                    <template x-for="tp in grp.tps" :key="'hsst_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
+                        </template>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div id="low-scores">
+            <h4>{{ 'tl_patrickj_mjs.lowScores.0'|trans }}</h4>
+            <ul style="margin: .25rem 0 0 .75rem;">
+                <li>
+                    <div><strong>{{ 'tl_patrickj_mjs.lowScoreEver.0'|trans }}:</strong></div>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="grp in lowScores.ever.topGroups" :key="'lset-'+grp.value">
+                            <li x-data="{closed: true}">
+                                <strong x-text="formatInt(grp.value)"></strong>
+                                <span class="toggle" @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'lset_tp_'+tp">
                                         <li x-text="tp"></li>
                                     </template>
                                 </ul>
@@ -181,30 +169,9 @@
                         <template x-for="grp in lowScores.big.topGroups" :key="'lsbt-'+grp.value">
                             <li x-data="{closed: true}">
                                 <strong x-text="formatInt(grp.value)"></strong>
-                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <span class="toggle" @click="closed=!closed" x-text="toggleLabel(grp)"></span>
                                 <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
                                     <template x-for="tp in grp.tps" :key="'lsbt_tp_'+tp">
-                                        <li x-text="tp"></li>
-                                    </template>
-                                </ul>
-                            </li>
-                        </template>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-        <div id="high-avg-scores" style="margin-top: 1rem;">
-            <h4>{{ 'tl_patrickj_mjs.highAvgScores.0'|trans }}</h4>
-            <ul style="margin: .25rem 0 0 .75rem;">
-                <li>
-                    <div><strong>{{ 'tl_patrickj_mjs.highAvgScoreEver.0'|trans }}:</strong></div>
-                    <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="grp in highAvgScores.ever.topGroups" :key="'haet-'+grp.value">
-                            <li x-data="{closed: true}">
-                                <strong x-text="formatAvg(grp.value)"></strong>
-                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
-                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
-                                    <template x-for="tp in grp.tps" :key="'haet_tp_'+tp">
                                         <li x-text="tp"></li>
                                     </template>
                                 </ul>
@@ -215,12 +182,33 @@
                 <li>
                     <div><strong x-text="'Recent (' + Alpine.store('graphs').numRecentSmall + '):'"></strong></div>
                     <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="grp in highAvgScores.small.topGroups" :key="'hast-'+grp.value">
+                        <template x-for="grp in lowScores.small.topGroups" :key="'lsst-'+grp.value">
+                            <li x-data="{closed: true}">
+                                <strong x-text="formatInt(grp.value)"></strong>
+                                <span class="toggle" @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'lsst_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
+                        </template>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div id="high-avg-scores">
+            <h4>{{ 'tl_patrickj_mjs.highAvgScores.0'|trans }}</h4>
+            <ul style="margin: .25rem 0 0 .75rem;">
+                <li>
+                    <div><strong>{{ 'tl_patrickj_mjs.highAvgScoreEver.0'|trans }}:</strong></div>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="grp in highAvgScores.ever.topGroups" :key="'haet-'+grp.value">
                             <li x-data="{closed: true}">
                                 <strong x-text="formatAvg(grp.value)"></strong>
-                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <span class="toggle" @click="closed=!closed" x-text="toggleLabel(grp)"></span>
                                 <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
-                                    <template x-for="tp in grp.tps" :key="'hast_tp_'+tp">
+                                    <template x-for="tp in grp.tps" :key="'haet_tp_'+tp">
                                         <li x-text="tp"></li>
                                     </template>
                                 </ul>
@@ -234,30 +222,9 @@
                         <template x-for="grp in highAvgScores.big.topGroups" :key="'habt-'+grp.value">
                             <li x-data="{closed: true}">
                                 <strong x-text="formatAvg(grp.value)"></strong>
-                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <span class="toggle" @click="closed=!closed" x-text="toggleLabel(grp)"></span>
                                 <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
                                     <template x-for="tp in grp.tps" :key="'habt_tp_'+tp">
-                                        <li x-text="tp"></li>
-                                    </template>
-                                </ul>
-                            </li>
-                        </template>
-                    </ul>
-                </li>
-            </ul>
-        </div>
-        <div id="low-avg-scores" style="margin-top: 1rem;">
-            <h4>{{ 'tl_patrickj_mjs.lowAvgScores.0'|trans }}</h4>
-            <ul style="margin: .25rem 0 0 .75rem;">
-                <li>
-                    <div><strong>{{ 'tl_patrickj_mjs.lowAvgScoreEver.0'|trans }}:</strong></div>
-                    <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="grp in lowAvgScores.ever.topGroups" :key="'laet-'+grp.value">
-                            <li x-data="{closed: true}">
-                                <strong x-text="formatAvg(grp.value)"></strong>
-                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
-                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
-                                    <template x-for="tp in grp.tps" :key="'laet_tp_'+tp">
                                         <li x-text="tp"></li>
                                     </template>
                                 </ul>
@@ -268,12 +235,33 @@
                 <li>
                     <div><strong x-text="'Recent (' + Alpine.store('graphs').numRecentSmall + '):'"></strong></div>
                     <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="grp in lowAvgScores.small.topGroups" :key="'last-'+grp.value">
+                        <template x-for="grp in highAvgScores.small.topGroups" :key="'hast-'+grp.value">
                             <li x-data="{closed: true}">
                                 <strong x-text="formatAvg(grp.value)"></strong>
-                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <span class="toggle" @click="closed=!closed" x-text="toggleLabel(grp)"></span>
                                 <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
-                                    <template x-for="tp in grp.tps" :key="'last_tp_'+tp">
+                                    <template x-for="tp in grp.tps" :key="'hast_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
+                        </template>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div id="low-avg-scores">
+            <h4>{{ 'tl_patrickj_mjs.lowAvgScores.0'|trans }}</h4>
+            <ul style="margin: .25rem 0 0 .75rem;">
+                <li>
+                    <div><strong>{{ 'tl_patrickj_mjs.lowAvgScoreEver.0'|trans }}:</strong></div>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="grp in lowAvgScores.ever.topGroups" :key="'laet-'+grp.value">
+                            <li x-data="{closed: true}">
+                                <strong x-text="formatAvg(grp.value)"></strong>
+                                <span class="toggle" @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'laet_tp_'+tp">
                                         <li x-text="tp"></li>
                                     </template>
                                 </ul>
@@ -287,9 +275,25 @@
                         <template x-for="grp in lowAvgScores.big.topGroups" :key="'labt-'+grp.value">
                             <li x-data="{closed: true}">
                                 <strong x-text="formatAvg(grp.value)"></strong>
-                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <span class="toggle" @click="closed=!closed" x-text="toggleLabel(grp)"></span>
                                 <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
                                     <template x-for="tp in grp.tps" :key="'labt_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
+                        </template>
+                    </ul>
+                </li>
+                <li>
+                    <div><strong x-text="'Recent (' + Alpine.store('graphs').numRecentSmall + '):'"></strong></div>
+                    <ul style="margin: .25rem 0 0 .75rem;">
+                        <template x-for="grp in lowAvgScores.small.topGroups" :key="'last-'+grp.value">
+                            <li x-data="{closed: true}">
+                                <strong x-text="formatAvg(grp.value)"></strong>
+                                <span class="toggle" @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'last_tp_'+tp">
                                         <li x-text="tp"></li>
                                     </template>
                                 </ul>
@@ -329,6 +333,23 @@
         }
         [id^="section"] {
             scroll-snap-align: start;
+        }
+        [id^="section"]:not(:has(canvas:last-child)) {
+            padding-bottom: 10rem
+        }
+        .table-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem 3rem;
+        }
+        .table-grid li {
+            padding: 0.15rem 0;
+        }
+        .table-grid li:not(:first-child):has(div > strong) {
+            margin-top: 0.5rem;
+        }
+        .toggle {
+            cursor: pointer;
         }
     </style>
 {% endblock %}

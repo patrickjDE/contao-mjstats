@@ -91,20 +91,13 @@
             <h4>{{ 'tl_patrickj_mjs.highScores.0'|trans }}</h4>
             <ul style="margin: .25rem 0 0 .75rem;">
                 <li>
-                    <div>
-                        <strong>{{ 'tl_patrickj_mjs.highScoreEver.0'|trans }}:</strong>
-                        <span x-text="formatInt(highScores.ever.value)"></span>
-                    </div>
-                    <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="tp in highScores.ever.tps" :key="'hse-'+tp">
-                            <li x-text="tp"></li>
-                        </template>
-                    </ul>
+                    <div><strong>{{ 'tl_patrickj_mjs.highScoreEver.0'|trans }}:</strong></div>
                     <ul style="margin: .25rem 0 0 .75rem;">
                         <template x-for="grp in highScores.ever.topGroups" :key="'hset-'+grp.value">
-                            <li>
+                            <li x-data="{closed: true}">
                                 <strong x-text="formatInt(grp.value)"></strong>
-                                <ul style="margin: .25rem 0 0 .75rem;">
+                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
                                     <template x-for="tp in grp.tps" :key="'hset_tp_'+tp">
                                         <li x-text="tp"></li>
                                     </template>
@@ -114,20 +107,13 @@
                     </ul>
                 </li>
                 <li>
-                    <div>
-                        <strong>{{ 'tl_patrickj_mjs.highScoreRecentSmall.0'|trans }}:</strong>
-                        <span x-text="formatInt(highScores.small.value)"></span>
-                    </div>
-                    <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="tp in highScores.small.tps" :key="'hss-'+tp">
-                            <li x-text="tp"></li>
-                        </template>
-                    </ul>
+                    <div><strong x-text="'Recent (' + Alpine.store('graphs').numRecentSmall + '):'"></strong></div>
                     <ul style="margin: .25rem 0 0 .75rem;">
                         <template x-for="grp in highScores.small.topGroups" :key="'hsst-'+grp.value">
-                            <li>
+                            <li x-data="{closed: true}">
                                 <strong x-text="formatInt(grp.value)"></strong>
-                                <ul style="margin: .25rem 0 0 .75rem;">
+                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
                                     <template x-for="tp in grp.tps" :key="'hsst_tp_'+tp">
                                         <li x-text="tp"></li>
                                     </template>
@@ -137,20 +123,13 @@
                     </ul>
                 </li>
                 <li>
-                    <div>
-                        <strong>{{ 'tl_patrickj_mjs.highScoreRecentBig.0'|trans }}:</strong>
-                        <span x-text="formatInt(highScores.big.value)"></span>
-                    </div>
-                    <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="tp in highScores.big.tps" :key="'hsb-'+tp">
-                            <li x-text="tp"></li>
-                        </template>
-                    </ul>
+                    <div><strong x-text="'Recent (' + Alpine.store('graphs').numRecentBig + '):'"></strong></div>
                     <ul style="margin: .25rem 0 0 .75rem;">
                         <template x-for="grp in highScores.big.topGroups" :key="'hsbt-'+grp.value">
-                            <li>
+                            <li x-data="{closed: true}">
                                 <strong x-text="formatInt(grp.value)"></strong>
-                                <ul style="margin: .25rem 0 0 .75rem;">
+                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
                                     <template x-for="tp in grp.tps" :key="'hsbt_tp_'+tp">
                                         <li x-text="tp"></li>
                                     </template>
@@ -165,20 +144,13 @@
             <h4>{{ 'tl_patrickj_mjs.lowScores.0'|trans }}</h4>
             <ul style="margin: .25rem 0 0 .75rem;">
                 <li>
-                    <div>
-                        <strong>{{ 'tl_patrickj_mjs.lowScoreEver.0'|trans }}:</strong>
-                        <span x-text="formatInt(lowScores.ever.value)"></span>
-                    </div>
-                    <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="tp in lowScores.ever.tps" :key="'lse-'+tp">
-                            <li x-text="tp"></li>
-                        </template>
-                    </ul>
+                    <div><strong>{{ 'tl_patrickj_mjs.lowScoreEver.0'|trans }}:</strong></div>
                     <ul style="margin: .25rem 0 0 .75rem;">
                         <template x-for="grp in lowScores.ever.topGroups" :key="'lset-'+grp.value">
-                            <li>
+                            <li x-data="{closed: true}">
                                 <strong x-text="formatInt(grp.value)"></strong>
-                                <ul style="margin: .25rem 0 0 .75rem;">
+                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
                                     <template x-for="tp in grp.tps" :key="'lset_tp_'+tp">
                                         <li x-text="tp"></li>
                                     </template>
@@ -188,20 +160,13 @@
                     </ul>
                 </li>
                 <li>
-                    <div>
-                        <strong>{{ 'tl_patrickj_mjs.lowScoreRecentSmall.0'|trans }}:</strong>
-                        <span x-text="formatInt(lowScores.small.value)"></span>
-                    </div>
-                    <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="tp in lowScores.small.tps" :key="'lss-'+tp">
-                            <li x-text="tp"></li>
-                        </template>
-                    </ul>
+                    <div><strong x-text="'Recent (' + Alpine.store('graphs').numRecentSmall + '):'"></strong></div>
                     <ul style="margin: .25rem 0 0 .75rem;">
                         <template x-for="grp in lowScores.small.topGroups" :key="'lsst-'+grp.value">
-                            <li>
+                            <li x-data="{closed: true}">
                                 <strong x-text="formatInt(grp.value)"></strong>
-                                <ul style="margin: .25rem 0 0 .75rem;">
+                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
                                     <template x-for="tp in grp.tps" :key="'lsst_tp_'+tp">
                                         <li x-text="tp"></li>
                                     </template>
@@ -211,20 +176,13 @@
                     </ul>
                 </li>
                 <li>
-                    <div>
-                        <strong>{{ 'tl_patrickj_mjs.lowScoreRecentBig.0'|trans }}:</strong>
-                        <span x-text="formatInt(lowScores.big.value)"></span>
-                    </div>
-                    <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="tp in lowScores.big.tps" :key="'lsb-'+tp">
-                            <li x-text="tp"></li>
-                        </template>
-                    </ul>
+                    <div><strong x-text="'Recent (' + Alpine.store('graphs').numRecentBig + '):'"></strong></div>
                     <ul style="margin: .25rem 0 0 .75rem;">
                         <template x-for="grp in lowScores.big.topGroups" :key="'lsbt-'+grp.value">
-                            <li>
+                            <li x-data="{closed: true}">
                                 <strong x-text="formatInt(grp.value)"></strong>
-                                <ul style="margin: .25rem 0 0 .75rem;">
+                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
                                     <template x-for="tp in grp.tps" :key="'lsbt_tp_'+tp">
                                         <li x-text="tp"></li>
                                     </template>
@@ -239,35 +197,50 @@
             <h4>{{ 'tl_patrickj_mjs.highAvgScores.0'|trans }}</h4>
             <ul style="margin: .25rem 0 0 .75rem;">
                 <li>
-                    <div>
-                        <strong>{{ 'tl_patrickj_mjs.highAvgScoreEver.0'|trans }}:</strong>
-                        <span x-text="formatAvg(highAvgScores.ever.value)"></span>
-                    </div>
+                    <div><strong>{{ 'tl_patrickj_mjs.highAvgScoreEver.0'|trans }}:</strong></div>
                     <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="tp in highAvgScores.ever.tps" :key="'hae-'+tp">
-                            <li x-text="tp"></li>
+                        <template x-for="grp in highAvgScores.ever.topGroups" :key="'haet-'+grp.value">
+                            <li x-data="{closed: true}">
+                                <strong x-text="formatAvg(grp.value)"></strong>
+                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'haet_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
                         </template>
                     </ul>
                 </li>
                 <li>
-                    <div>
-                        <strong>{{ 'tl_patrickj_mjs.highAvgScoreRecentSmall.0'|trans }}:</strong>
-                        <span x-text="formatAvg(highAvgScores.small.value)"></span>
-                    </div>
+                    <div><strong x-text="'Recent (' + Alpine.store('graphs').numRecentSmall + '):'"></strong></div>
                     <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="tp in highAvgScores.small.tps" :key="'has-'+tp">
-                            <li x-text="tp"></li>
+                        <template x-for="grp in highAvgScores.small.topGroups" :key="'hast-'+grp.value">
+                            <li x-data="{closed: true}">
+                                <strong x-text="formatAvg(grp.value)"></strong>
+                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'hast_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
                         </template>
                     </ul>
                 </li>
                 <li>
-                    <div>
-                        <strong>{{ 'tl_patrickj_mjs.highAvgScoreRecentBig.0'|trans }}:</strong>
-                        <span x-text="formatAvg(highAvgScores.big.value)"></span>
-                    </div>
+                    <div><strong x-text="'Recent (' + Alpine.store('graphs').numRecentBig + '):'"></strong></div>
                     <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="tp in highAvgScores.big.tps" :key="'hab-'+tp">
-                            <li x-text="tp"></li>
+                        <template x-for="grp in highAvgScores.big.topGroups" :key="'habt-'+grp.value">
+                            <li x-data="{closed: true}">
+                                <strong x-text="formatAvg(grp.value)"></strong>
+                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'habt_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
                         </template>
                     </ul>
                 </li>
@@ -277,35 +250,50 @@
             <h4>{{ 'tl_patrickj_mjs.lowAvgScores.0'|trans }}</h4>
             <ul style="margin: .25rem 0 0 .75rem;">
                 <li>
-                    <div>
-                        <strong>{{ 'tl_patrickj_mjs.lowAvgScoreEver.0'|trans }}:</strong>
-                        <span x-text="formatAvg(lowAvgScores.ever.value)"></span>
-                    </div>
+                    <div><strong>{{ 'tl_patrickj_mjs.lowAvgScoreEver.0'|trans }}:</strong></div>
                     <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="tp in lowAvgScores.ever.tps" :key="'lae-'+tp">
-                            <li x-text="tp"></li>
+                        <template x-for="grp in lowAvgScores.ever.topGroups" :key="'laet-'+grp.value">
+                            <li x-data="{closed: true}">
+                                <strong x-text="formatAvg(grp.value)"></strong>
+                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'laet_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
                         </template>
                     </ul>
                 </li>
                 <li>
-                    <div>
-                        <strong>{{ 'tl_patrickj_mjs.lowAvgScoreRecentSmall.0'|trans }}:</strong>
-                        <span x-text="formatAvg(lowAvgScores.small.value)"></span>
-                    </div>
+                    <div><strong x-text="'Recent (' + Alpine.store('graphs').numRecentSmall + '):'"></strong></div>
                     <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="tp in lowAvgScores.small.tps" :key="'las-'+tp">
-                            <li x-text="tp"></li>
+                        <template x-for="grp in lowAvgScores.small.topGroups" :key="'last-'+grp.value">
+                            <li x-data="{closed: true}">
+                                <strong x-text="formatAvg(grp.value)"></strong>
+                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'last_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
                         </template>
                     </ul>
                 </li>
                 <li>
-                    <div>
-                        <strong>{{ 'tl_patrickj_mjs.lowAvgScoreRecentBig.0'|trans }}:</strong>
-                        <span x-text="formatAvg(lowAvgScores.big.value)"></span>
-                    </div>
+                    <div><strong x-text="'Recent (' + Alpine.store('graphs').numRecentBig + '):'"></strong></div>
                     <ul style="margin: .25rem 0 0 .75rem;">
-                        <template x-for="tp in lowAvgScores.big.tps" :key="'lab-'+tp">
-                            <li x-text="tp"></li>
+                        <template x-for="grp in lowAvgScores.big.topGroups" :key="'labt-'+grp.value">
+                            <li x-data="{closed: true}">
+                                <strong x-text="formatAvg(grp.value)"></strong>
+                                <span @click="closed=!closed" x-text="toggleLabel(grp)"></span>
+                                <ul x-show="!closed" x-transition style="margin: .25rem 0 0 .75rem;">
+                                    <template x-for="tp in grp.tps" :key="'labt_tp_'+tp">
+                                        <li x-text="tp"></li>
+                                    </template>
+                                </ul>
+                            </li>
                         </template>
                     </ul>
                 </li>
@@ -430,7 +418,7 @@
                 ranges: byLen[len].sort((a, b) => a.start - b.start)
             }));
         }
-        const computeMaxInRange = (arr, accessor, startIdx = 0, endIdx = arr.length - 1) => {
+        const computeMaxInRange = (arr, accessor, startIdx = 0, endIdx = (arr?.length || 0) - 1) => {
             if (!arr || !arr.length) return { max: null, indices: [] };
             startIdx = Math.max(0, startIdx);
             endIdx = Math.min(arr.length - 1, endIdx);
@@ -438,7 +426,7 @@
             let max = null;
             const indices = [];
             for (let i = startIdx; i <= endIdx; i++) {
-                const v = accessor(arr[i]);
+                const v = accessor ? accessor(arr[i]) : arr[i];
                 if (v === null || v === undefined || isNaN(v)) continue;
                 if (max === null || v > max) {
                     max = v;
@@ -450,28 +438,7 @@
             }
             return { max, indices };
         }
-        // Compute max and indices for a simple numeric series (numbers or nulls)
-        const computeMaxInSeries = (series, startIdx = 0, endIdx = (series?.length || 0) - 1) => {
-            if (!Array.isArray(series) || !series.length) return { max: null, indices: [] };
-            startIdx = Math.max(0, startIdx);
-            endIdx = Math.min(series.length - 1, endIdx);
-            if (endIdx < startIdx) return { max: null, indices: [] };
-            let max = null;
-            const indices = [];
-            for (let i = startIdx; i <= endIdx; i++) {
-                const v = series[i];
-                if (v === null || v === undefined || isNaN(v)) continue;
-                if (max === null || v > max) {
-                    max = v;
-                    indices.length = 0;
-                    indices.push(i);
-                } else if (v === max) {
-                    indices.push(i);
-                }
-            }
-            return { max, indices };
-        }
-        const computeMinInRange = (arr, accessor, startIdx = 0, endIdx = arr.length - 1) => {
+        const computeMinInRange = (arr, accessor, startIdx = 0, endIdx = (arr?.length || 0) - 1) => {
             if (!arr || !arr.length) return { min: null, indices: [] };
             startIdx = Math.max(0, startIdx);
             endIdx = Math.min(arr.length - 1, endIdx);
@@ -479,27 +446,7 @@
             let min = null;
             const indices = [];
             for (let i = startIdx; i <= endIdx; i++) {
-                const v = accessor(arr[i]);
-                if (v === null || v === undefined || isNaN(v)) continue;
-                if (min === null || v < min) {
-                    min = v;
-                    indices.length = 0;
-                    indices.push(i);
-                } else if (v === min) {
-                    indices.push(i);
-                }
-            }
-            return { min, indices };
-        }
-        const computeMinInSeries = (series, startIdx = 0, endIdx = (series?.length || 0) - 1) => {
-            if (!Array.isArray(series) || !series.length) return { min: null, indices: [] };
-            startIdx = Math.max(0, startIdx);
-            endIdx = Math.min(series.length - 1, endIdx);
-            if (endIdx < startIdx) return { min: null, indices: [] };
-            let min = null;
-            const indices = [];
-            for (let i = startIdx; i <= endIdx; i++) {
-                const v = series[i];
+                const v = accessor ? accessor(arr[i]) : arr[i];
                 if (v === null || v === undefined || isNaN(v)) continue;
                 if (min === null || v < min) {
                     min = v;
@@ -517,7 +464,7 @@
             endIdx = Math.min(arr.length - 1, endIdx);
             const map = new Map(); // value -> indices[]
             for (let i = startIdx; i <= endIdx; i++) {
-                const v = accessor(arr[i]);
+                const v = accessor ? accessor(arr[i]) : arr[i];
                 if (v === null || v === undefined || isNaN(v)) continue;
                 const key = v;
                 if (!map.has(key)) map.set(key, []);
@@ -540,7 +487,8 @@
             toggleLabel(group) {
                 const times = '{{ 'tl_patrickj_mjs.times.0'|trans }}';
                 const show = '{{ 'tl_patrickj_mjs.show.0'|trans }}';
-                return '(' + (group?.ranges?.length > 1 ? (group.ranges.length + ' ' + times + ' - ') : '') + show + ')';
+                const count = group?.ranges?.length || group?.tps?.length || 0;
+                return '(' + (count > 1 ? (count + ' ' + times + ' - ') : '') + show + ')';
             },
             // streaks: no first and no fourth, plus consecutive by place
             get noFirst() {
@@ -577,18 +525,11 @@
                 const nBig = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentBig || 0));
                 const startSmall = Math.max(0, rawData.length - nSmall);
                 const startBig = Math.max(0, rawData.length - nBig);
-                const pack = (res) => ({
-                    value: res.max,
-                    tps: (res.indices || []).map(i => rawData[i]?.totalPlayed).filter(v => v != null),
-                });
                 const packGroups = (groups) => groups.map(g => ({ value: g.value, tps: g.indices.map(i => rawData[i]?.totalPlayed).filter(v => v != null) }));
-                const everRes = computeMaxInRange(rawData, accessor, 0, rawData.length - 1);
-                const smallRes = computeMaxInRange(rawData, accessor, startSmall, rawData.length - 1);
-                const bigRes = computeMaxInRange(rawData, accessor, startBig, rawData.length - 1);
                 return {
-                    ever: { ...pack(everRes), topGroups: packGroups(topValueGroupsInRange(rawData, accessor, 0, rawData.length - 1, 'desc', 3)) },
-                    small: { ...pack(smallRes), topGroups: packGroups(topValueGroupsInRange(rawData, accessor, startSmall, rawData.length - 1, 'desc', 3)) },
-                    big: { ...pack(bigRes), topGroups: packGroups(topValueGroupsInRange(rawData, accessor, startBig, rawData.length - 1, 'desc', 3)) },
+                    ever: { topGroups: packGroups(topValueGroupsInRange(rawData, accessor, 0, rawData.length - 1, 'desc', 3)) },
+                    small: { topGroups: packGroups(topValueGroupsInRange(rawData, accessor, startSmall, rawData.length - 1, 'desc', 3)) },
+                    big: { topGroups: packGroups(topValueGroupsInRange(rawData, accessor, startBig, rawData.length - 1, 'desc', 3)) },
                 };
             },
             get lowScores() {
@@ -597,18 +538,11 @@
                 const nBig = Math.max(1, parseInt(Alpine.store('graphs')?.numRecentBig || 0));
                 const startSmall = Math.max(0, rawData.length - nSmall);
                 const startBig = Math.max(0, rawData.length - nBig);
-                const pack = (res) => ({
-                    value: res.min,
-                    tps: (res.indices || []).map(i => rawData[i]?.totalPlayed).filter(v => v != null),
-                });
                 const packGroups = (groups) => groups.map(g => ({ value: g.value, tps: g.indices.map(i => rawData[i]?.totalPlayed).filter(v => v != null) }));
-                const everRes = computeMinInRange(rawData, accessor, 0, rawData.length - 1);
-                const smallRes = computeMinInRange(rawData, accessor, startSmall, rawData.length - 1);
-                const bigRes = computeMinInRange(rawData, accessor, startBig, rawData.length - 1);
                 return {
-                    ever: { ...pack(everRes), topGroups: packGroups(topValueGroupsInRange(rawData, accessor, 0, rawData.length - 1, 'asc', 3)) },
-                    small: { ...pack(smallRes), topGroups: packGroups(topValueGroupsInRange(rawData, accessor, startSmall, rawData.length - 1, 'asc', 3)) },
-                    big: { ...pack(bigRes), topGroups: packGroups(topValueGroupsInRange(rawData, accessor, startBig, rawData.length - 1, 'asc', 3)) },
+                    ever: { topGroups: packGroups(topValueGroupsInRange(rawData, accessor, 0, rawData.length - 1, 'asc', 3)) },
+                    small: { topGroups: packGroups(topValueGroupsInRange(rawData, accessor, startSmall, rawData.length - 1, 'asc', 3)) },
+                    big: { topGroups: packGroups(topValueGroupsInRange(rawData, accessor, startBig, rawData.length - 1, 'asc', 3)) },
                 };
             },
             // Average scores (use parsedData series) with skip rule
@@ -621,11 +555,12 @@
                 const skipN = Math.max(0, Math.min(nSmall, nBig));
                 const startSmall = Math.max(skipN, (seriesSmall?.length || 0) - nSmall);
                 const startBig = Math.max(skipN, (seriesBig?.length || 0) - nBig);
-                const everRes = computeMaxInSeries(seriesEver, skipN, (seriesEver?.length || 1) - 1);
-                const smallRes = computeMaxInSeries(seriesSmall, startSmall, (seriesSmall?.length || 1) - 1);
-                const bigRes = computeMaxInSeries(seriesBig, startBig, (seriesBig?.length || 1) - 1);
-                const pack = (res) => ({ value: res.max, tps: (res.indices || []).map(i => rawData[i]?.totalPlayed).filter(v => v != null) });
-                return { ever: pack(everRes), small: pack(smallRes), big: pack(bigRes) };
+                const packGroups = (groups) => groups.map(g => ({ value: g.value, tps: g.indices.map(i => rawData[i]?.totalPlayed).filter(v => v != null) }));
+                return {
+                    ever: { topGroups: packGroups(topValueGroupsInRange(seriesEver, null, skipN, (seriesEver?.length || 1) - 1, 'desc', 3)) },
+                    small: { topGroups: packGroups(topValueGroupsInRange(seriesSmall, null, startSmall, (seriesSmall?.length || 1) - 1, 'desc', 3)) },
+                    big: { topGroups: packGroups(topValueGroupsInRange(seriesBig, null, startBig, (seriesBig?.length || 1) - 1, 'desc', 3)) },
+                };
             },
             get lowAvgScores() {
                 const seriesEver = parsedData['recentScore_avg'];
@@ -636,11 +571,12 @@
                 const skipN = Math.max(0, Math.min(nSmall, nBig));
                 const startSmall = Math.max(skipN, (seriesSmall?.length || 0) - nSmall);
                 const startBig = Math.max(skipN, (seriesBig?.length || 0) - nBig);
-                const everRes = computeMinInSeries(seriesEver, skipN, (seriesEver?.length || 1) - 1);
-                const smallRes = computeMinInSeries(seriesSmall, startSmall, (seriesSmall?.length || 1) - 1);
-                const bigRes = computeMinInSeries(seriesBig, startBig, (seriesBig?.length || 1) - 1);
-                const pack = (res) => ({ value: res.min, tps: (res.indices || []).map(i => rawData[i]?.totalPlayed).filter(v => v != null) });
-                return { ever: pack(everRes), small: pack(smallRes), big: pack(bigRes) };
+                const packGroups = (groups) => groups.map(g => ({ value: g.value, tps: g.indices.map(i => rawData[i]?.totalPlayed).filter(v => v != null) }));
+                return {
+                    ever: { topGroups: packGroups(topValueGroupsInRange(seriesEver, null, skipN, (seriesEver?.length || 1) - 1, 'asc', 3)) },
+                    small: { topGroups: packGroups(topValueGroupsInRange(seriesSmall, null, startSmall, (seriesSmall?.length || 1) - 1, 'asc', 3)) },
+                    big: { topGroups: packGroups(topValueGroupsInRange(seriesBig, null, startBig, (seriesBig?.length || 1) - 1, 'asc', 3)) },
+                };
             },
         }));
 

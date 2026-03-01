@@ -659,10 +659,68 @@
         parseData('', 0);
 
         // charts
+        const verticalLinePlugin = {
+            id: 'verticalLine',
+            afterDraw: (chart, args, options) => {
+                if (!options.lines || options.lines.length === 0) return;
+                const {ctx, chartArea: {top, bottom}, scales: {x}} = chart;
+                ctx.save();
+                options.lines.forEach(line => {
+                    const xPos = x.getPixelForValue(line.x);
+                    if (xPos < chart.chartArea.left || xPos > chart.chartArea.right) return;
+                    ctx.beginPath();
+                    ctx.lineWidth = line.width || 1;
+                    ctx.strokeStyle = line.color || '#000';
+                    if (line.dash) {
+                        ctx.setLineDash(line.dash);
+                    } else {
+                        ctx.setLineDash([]);
+                    }
+                    ctx.moveTo(xPos, top);
+                    ctx.lineTo(xPos, bottom);
+                    ctx.stroke();
+                });
+                ctx.restore();
+            }
+        };
+        Chart.register(verticalLinePlugin);
+
         const charts = [];
         const updateCharts = () => {
+            const nSmall = parseInt(Alpine.store('graphs')?.numRecentSmall || 0);
+            const nBig = parseInt(Alpine.store('graphs')?.numRecentBig || 0);
+            const total = rawData.length;
+
             charts.forEach(el => {
                 el.data.labels = slicedData.totalPlayed;
+
+                // Update vertical lines
+                if (el.options.plugins.verticalLine) {
+                    const lines = [];
+                    if (nSmall > 0 && nSmall < total) {
+                        const smallIdx = total - nSmall;
+                        if (smallIdx >= offset) {
+                            lines.push({
+                                x: slicedData.totalPlayed[smallIdx - offset],
+                                color: '#888',
+                                width: 1,
+                                dash: [5, 5]
+                            });
+                        }
+                    }
+                    if (nBig > 0 && nBig < total) {
+                        const bigIdx = total - nBig;
+                        if (bigIdx >= offset) {
+                            lines.push({
+                                x: slicedData.totalPlayed[bigIdx - offset],
+                                color: '#888',
+                                width: 1
+                            });
+                        }
+                    }
+                    el.options.plugins.verticalLine.lines = lines;
+                }
+
                 el.data.datasets.forEach(dataset => {
                     let replacementValue = '';
                     if (dataset.label.match(/last \d+/)) {
@@ -840,6 +898,9 @@
                 ],
             },
             options: {
+                plugins: {
+                    verticalLine: { lines: [] }
+                },
                 aspectRatio: targetBaseRatio,
                 spanGaps: true,
                 pointRadius: 0,
@@ -932,6 +993,9 @@
                 ],
             },
             options: {
+                plugins: {
+                    verticalLine: { lines: [] }
+                },
                 aspectRatio: targetBaseRatio,
                 fill: {value: 2.5},
                 spanGaps: true,
@@ -1053,6 +1117,9 @@
                 ],
             },
             options: {
+                plugins: {
+                    verticalLine: { lines: [] }
+                },
                 aspectRatio: targetBaseRatio,
                 categoryPercentage: 1,
                 fill: true,
@@ -1243,6 +1310,9 @@
                 ],
             },
             options: {
+                plugins: {
+                    verticalLine: { lines: [] }
+                },
                 aspectRatio: targetBaseRatio,
                 fill: '-1',
                 spanGaps: true,
@@ -1305,6 +1375,9 @@
                 ],
             },
             options: {
+                plugins: {
+                    verticalLine: { lines: [] }
+                },
                 aspectRatio: targetBaseRatio,
                 fill: true,
                 spanGaps: true,
@@ -1453,6 +1526,9 @@
                 ],
             },
             options: {
+                plugins: {
+                    verticalLine: { lines: [] }
+                },
                 aspectRatio: targetBaseRatio,
                 backgroundColor: 'transparent',
                 pointRadius: 0,
@@ -1482,6 +1558,7 @@
             },
         });
         charts.push(megaChart);
+        updateCharts();
     });
 
         document.querySelectorAll('[id^="anchor"]').forEach(el => el.addEventListener('click', e => window.location.hash = e.target.id.replace('anchor', 'section')))
